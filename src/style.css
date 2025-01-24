@@ -1,0 +1,64 @@
+body {
+  margin: 0;
+}
+
+/* Tools div Style Properties */
+#tools {
+	display:block;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  margin: 10px;
+  padding: 10px;
+}
+
+#tool_icon {
+  margin-bottom: -20px;
+  margin-right: 5px;
+}
+
+/* Button Style Properties */
+button {
+  background-color: #eee;
+  border: none;
+  padding: 1rem;
+  font-size: 0.8rem;
+  width: 10em;
+  border-radius: 1rem;
+  color: rgb(62, 144,182);
+  box-shadow: 0 0.4rem #dfd9d9;
+  cursor: pointer;
+  margin-bottom: 10px;
+ }
+ 
+ button:active {
+  color: white;
+  box-shadow: 0 0.2rem #dfd9d9;
+  transform: translateY(0.2rem);
+ }
+ 
+ button:hover:not(:disabled) {
+  background: rgb(62, 144, 182);
+  color: white;
+  text-shadow: 0 0.1rem #bcb4b4;
+ }
+ 
+ button:disabled {
+  cursor: auto;
+  color: grey;
+ }
+
+ /* Overview Temperature CSS */
+ .over_temp {
+  position: absolute;
+  background-color: #eee;
+  border: none;
+  padding: 1rem;
+  font-size: 0.8rem;
+  width: 7em;
+  border-radius: 1rem;
+  color: rgb(62, 144,182);
+  margin-bottom: 10px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+ }

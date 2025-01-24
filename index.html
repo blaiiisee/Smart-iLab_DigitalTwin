@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart-iLab Project</title>
+    <link rel="stylesheet" type="text/css" href="/src/style.css">
+    <script type="importmap">
+			{
+				"imports": {
+					"three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+          "jsm/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+        }
+			}
+		</script>
+  </head>
+  <body>
+    <!--
+      <script type="module" src="/src/sphere_and_cube.js"></script>
+    -->
+    
+    <!--Tools div located at bottom left of page-->
+    <div id="tools">
+      <img id="tool_icon" src="/assets/icons/tools.png">
+      <button id="rst_cam_btn">Reset Camera</button>
+    </div>
+
+    <!--Overview Temperature #4-->
+    <div id="over4" class="over_temp">Temp: 26°C</div>
+
+    <!--Linking to main Javascript-->
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
