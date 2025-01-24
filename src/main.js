@@ -109,9 +109,6 @@ loader.load('skybox/scene.gltf', (gltf) => {
 });
 
 
-// [5] Adding a sky ! Not working !
-
-
 // ---------- Functionalities ----------
 
 // [1] Camera Reset
