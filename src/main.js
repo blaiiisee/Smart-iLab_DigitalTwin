@@ -140,10 +140,6 @@ var rst_cam_btn = document.getElementById("rst_cam_btn");
 rst_cam_btn.onclick = function(){
     gsap.to(controls.target,{ x: 0, y: 0, z: 0, duration: 1, ease: 'power2.inOut'});
     gsap.to(camera.position,{ x: 20, y: 20, z: 20, duration: 1, ease: 'power2.inOut'});
-
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-    controls.update();
 };
 
 // [2] Table Selection 
