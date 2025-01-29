@@ -5,28 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Smart-iLab Project</title>
     <link rel="stylesheet" type="text/css" href="/src/style.css">
+    <script>
+    (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='https://mrdoob.github.io/stats.js/build/stats.min.js';document.head.appendChild(script);})()</script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
     <script type="importmap">
 			{
 				"imports": {
-					"three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
-          "jsm/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+					"three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
+          "jsm/": "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/"
         }
 			}
 		</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
   </head>
-  <body>
+  <body id="the_body">
     <!--
       <script type="module" src="/src/sphere_and_cube.js"></script>
     -->
     
     <!--Tools div located at bottom left of page-->
     <div id="tools">
-      <img id="tool_icon" src="/assets/icons/tools.png">
-      <button id="rst_cam_btn">Reset Camera</button>
+      <button id = "rst_cam_btn" class="button">Reset Camera</button>
     </div>
+  
+    <!--Test Divs-->
+    <div id="CAM_TEST" class="TEST">CAM TEST</div>
+    <div id="CONTROLS">Left Click: Pan | Right Click: Rotate | Scroll Wheel: Zoom</div>
 
-    <!--Overview Temperature #4-->
-    <div id="over4" class="over_temp">Temp: 26°C</div>
 
     <!--Linking to main Javascript-->
     <script type="module" src="/src/main.js"></script>
