@@ -1,6 +1,12 @@
 // ---------- Some node package manager installs necessary ----------
 // npm install three
 // npm install gsap
+
+
+
+
+
+
 // ---------- Foundation of the Scene ----------
 // [0] Import Modules
 
@@ -20,7 +26,8 @@ import { RenderPass } from 'jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'jsm/postprocessing/ShaderPass.js';
 // Gamma correction because Effect Composer makes scene darker
 import { GammaCorrectionShader } from 'jsm/shaders/GammaCorrectionShader.js';
-
+// CSS2D for HTML Position Projection 
+import { CSS2DRenderer, CSS2DObject } from 'jsm/renderers/CSS2DRenderer.js';
 
 // [1] The Three + 1 Fundamentals
 
@@ -80,9 +87,11 @@ scene.add(light);
 const groundGeometry = new THREE.PlaneGeometry(1000,1000,1,1);
 groundGeometry.rotateX(-Math.PI /2);
 const groundMaterial = new THREE.MeshStandardMaterial({
-    color:  0xddffff,
+    color:  0xa1edf7,
     side: THREE.DoubleSide
 });
+groundMaterial.metalness = 0.8;
+groundMaterial.roughness = 0.6;
 const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
 groundMesh.castShadow = false;
 groundMesh.receiveShadow = true;
@@ -150,9 +159,10 @@ rst_cam_btn.onclick = function(){
     table_geometry.rotateX(Math.PI/2);
     // table_material sets the table color
     const table_material = new THREE.MeshStandardMaterial({
-        color:  0x3e90b6,
+        color:  0xe8fcff,
         side: THREE.DoubleSide
     });
+    table_material.roughness = 0.6;
 
     // Table #1 Creation
     const table_top1 = new THREE.Mesh(table_geometry, table_material);
@@ -255,14 +265,32 @@ rst_cam_btn.onclick = function(){
     window.addEventListener('click', onMouseClick);
 
 
+
+
+
+
+
+
 // ---------- Properties ----------
 
+// ! NOT WORKING ! 
+// [1] Overview Position Projection (HTML Element Following Object)
 
-// ! NOT WORKING !
-// [2] Overview Position Projection (HTML Element Following Object)
-const over4 = document.getElementById("over4");
-const canvas = document.querySelector("canvas");
-const overposition4 = new THREE.Vector3();
+// Creation of Label Renderer as a CSS2D Renderer
+    let labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize( window.innerWidth, window.innerHeight );
+    labelRenderer.domElement.style.position = 'absolute';   // Place on top most layer
+    labelRenderer.domElement.style.top = '0px';
+    labelRenderer.domElement.style.pointerEvents = 'none';  // Do not capture mouse events
+    document.body.appendChild( labelRenderer.domElement );
+
+// Creation of HTML Objects that will be placed as labels on 3D space
+    var temp1 = document.createElement('p');
+    temp1.textContent = "26°";      // = function call to curl temperature from REST API, external JS?
+    temp1.className = "label";      // Temporary CSS -- To add: color of border and font will depend on temperature (hot = red, cold = blue)
+    const temp1_label = new CSS2DObject(temp1);
+    scene.add(temp1_label);
+    temp1_label.position.set(9.79,3,-4.65); 
 
 
 
@@ -282,5 +310,6 @@ function animate(t = 0) {
     renderer.render(scene, camera);
     controls.update();
     composer.render();
+    labelRenderer.render(scene, camera);
   };
   animate();
