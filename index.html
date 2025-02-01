@@ -27,12 +27,25 @@
     
     <!--Tools div located at bottom left of page-->
     <div id="tools">
-      <button id = "rst_cam_btn" class="button">Reset Camera</button>
+      <!-- From Uiverse.io by WhiteNervosa --> 
+        <div class="customCheckBoxHolder">
+
+          <input type="checkbox" id="temp_checkbox" class="customCheckBoxInput" checked>
+          <label for="temp_checkbox" class="customCheckBoxWrapper">
+              <div class="customCheckBox">
+                  <div class="inner">Temperature</div>
+              </div>
+          </label>
+
+        </div>
+      <button id = "rst_cam_btn" class="button"><span class="inner">Isometric View</span></button>
+      <button id = "top_cam_btn" class="button"><span class="inner">Overhead View</span></button>
     </div>
-  
+
+
     <!--Test Divs-->
     <div id="CAM_TEST" class="TEST">CAM TEST</div>
-    <div id="CONTROLS">Left Click: Pan | Right Click: Rotate | Scroll Wheel: Zoom</div>
+    <div id="CONTROLS">Left Click: Pan (Disabled) | Right Click: Rotate | Scroll Wheel: Zoom</div>
 
 
     <!--Linking to main Javascript-->

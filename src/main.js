@@ -29,6 +29,7 @@ import { GammaCorrectionShader } from 'jsm/shaders/GammaCorrectionShader.js';
 // CSS2D for HTML Position Projection 
 import { CSS2DRenderer, CSS2DObject } from 'jsm/renderers/CSS2DRenderer.js';
 
+
 // [1] The Three + 1 Fundamentals
 
 // (a) Main Scene
@@ -43,7 +44,7 @@ camera.near = 0.1;
 camera.far = 1000;
 
 // (c) Renderer and Properties
-const renderer = new THREE.WebGLRenderer({antialias: true});
+const renderer = new THREE.WebGLRenderer({antialias: false});
 
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -56,9 +57,9 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.maxPolarAngle = Math.PI/2 -0.1;
-//controls.target.set(10,3,-4); // This is for table 1, must also change camera position
 controls.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;
-controls.mouseButtons.LEFT = THREE.MOUSE.PAN;
+// controls.mouseButtons.LEFT = THREE.MOUSE.PAN; // Turn on if want panning
+controls.mouseButtons.LEFT = null;
 
 // [2] Creating ambient light
 const ambient = new THREE.AmbientLight(0xffffff, 1);
@@ -67,17 +68,18 @@ scene.add(ambient);
 
 // [3] Adding directional light
 const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(20,30,-10);
+light.position.set(-10,50,20);
 // Setting bounds of the directional light
-light.shadow.mapSize.width = 8192;
-light.shadow.mapSize.height = 8192;
+light.shadow.mapSize.width = 1024;
+light.shadow.mapSize.height = 1024;
 light.shadow.camera.near = 0.1;
-light.shadow.camera.far = 1000;
+light.shadow.camera.far = 500;
 light.shadow.camera.left = 50;
 light.shadow.camera.right = -50;
 light.shadow.camera.top = 50;
 light.shadow.camera.bottom = -50;
 light.castShadow = true;
+light.shadow.bias = -0.0004;
 scene.add(light);
 // Directional Light Helper
 // const helper = new THREE.DirectionalLightHelper(light, 1);
@@ -109,7 +111,7 @@ loader.load('shiba/scene.gltf', (gltf) => {
         }
     });
 
-    dog_mesh.position.set(0,3.3,0);
+    dog_mesh.position.set(-1.65,3.3,-8);
     dog_mesh.scale.set(1,1,1);
     scene.add(dog_mesh);
 });
@@ -130,6 +132,7 @@ loader.load('smart_ilab_3d/scene.gltf', (gltf) => {
     scene.add(lab);
 });
 
+// Loading skybox
 loader.load('skybox/scene.gltf', (gltf) => {
     const sky = gltf.scene;
     scene.add(sky);
@@ -144,11 +147,28 @@ loader.load('skybox/scene.gltf', (gltf) => {
 
 // ---------- Functionalities ----------
 
+// [0] Disable Raytracer if mouse is being held
+var mouse_held = false;
+window.addEventListener('mousedown', function(){
+    mouse_held = true;
+});
+window.addEventListener('mouseup', function(){
+    mouse_held = false;
+});
+
+
 // [1] Camera Reset
+    // [1.1] Isometric View
 var rst_cam_btn = document.getElementById("rst_cam_btn");
 rst_cam_btn.onclick = function(){
     gsap.to(controls.target,{ x: 0, y: 0, z: 0, duration: 1, ease: 'power2.inOut'});
     gsap.to(camera.position,{ x: 20, y: 20, z: 20, duration: 1, ease: 'power2.inOut'});
+};
+     // [1.2] Overhead View
+var rst_cam_btn = document.getElementById("top_cam_btn");
+rst_cam_btn.onclick = function(){
+    gsap.to(controls.target,{ x: 0, y: 0, z: 0, duration: 1, ease: 'power2.inOut'});
+    gsap.to(camera.position,{ x: 0, y: 30, z: 0.1, duration: 1, ease: 'power2.inOut'});
 };
 
 // [2] Table Selection 
@@ -164,22 +184,35 @@ rst_cam_btn.onclick = function(){
     });
     table_material.roughness = 0.6;
 
-    // Table #1 Creation
-    const table_top1 = new THREE.Mesh(table_geometry, table_material);
-    table_top1.castShadow = false;
-    table_top1.receiveShadow = true;
-    table_top1.name = "Table1";
-    scene.add(table_top1);
-    table_top1.position.set(9.79,2.305,-4.65);
-
-    // Table #2 Creation
-    const table_top2 = new THREE.Mesh(table_geometry, table_material);
-    table_top2.castShadow = false;
-    table_top2.receiveShadow = true;
-    table_top2.name = "Table2";
-    scene.add(table_top2);
-    table_top2.position.set(9.79,2.305,0.28);
-
+    // Define positions of table (tops)
+    const table_positions = [
+        [9.79, 2.305, -4.65],
+        [9.79, 2.305, 0.28],
+        [9.79, 2.305, 5.24],
+        [9.79, 2.305, 10.21],
+        [-0.1, 2.305, -4.65],
+        [-0.1, 2.305, 0.28],
+        [-0.1, 2.305, 5.24],
+        [-0.1, 2.305, 10.21],
+        [-3.25, 2.305, -4.65],
+        [-3.25, 2.305, 0.28],
+        [-3.25, 2.305, 5.24],
+        [-3.25, 2.305, 10.21],
+        [-12.48, 2.305, -4.65],
+        [-12.48, 2.305, 0.28],
+        [-12.48, 2.305, 5.24],
+        [-12.48, 2.305, 10.21]
+    ];
+    
+    // Create a plane for each table top
+    table_positions.forEach((pos, index) => {
+        const table = new THREE.Mesh(table_geometry, table_material);
+        table.castShadow = false;
+        table.receiveShadow = true;
+        table.name = `Table${index + 1}`;
+        scene.add(table);
+        table.position.set(...pos);
+    });
 
     // [2.2] OutlinePass creation for outlines when hovering over interactable objects
     let composer, outlinePass;
@@ -207,6 +240,7 @@ rst_cam_btn.onclick = function(){
 
     // While mouse is moving: Function for calculating pointer position, raycasting information...
     const onMouseMove = (event) => {
+            if(mouse_held) return; // If mouse is being held down i.e. rotating the scene, DO NOT TRACE RAYS
 
             // calculate pointer position in normalized device coordinates
             // [-1 to +1] for both components
@@ -214,7 +248,7 @@ rst_cam_btn.onclick = function(){
             pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
             raycaster.setFromCamera(pointer, camera);
-            const intersects = raycaster.intersectObjects(scene.children);
+            const intersects = raycaster.intersectObjects(scene.children.filter(child => child.name.includes("Table")), false); // false -> non-recursive, better performance
             
             // If there are intersected objects with the ray...
             if (intersects.length > 0) {
@@ -226,6 +260,9 @@ rst_cam_btn.onclick = function(){
                     document.getElementById("the_body").style.cursor = "pointer";
                     outlinePass.selectedObjects = [top_object];
                 }           
+            } else {
+                outlinePass.selectedObjects = [];
+                document.getElementById("the_body").style.cursor = "default";
             }
             
     
@@ -243,21 +280,48 @@ rst_cam_btn.onclick = function(){
             pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
             raycaster.setFromCamera(pointer, camera);
-            const intersects = raycaster.intersectObjects(scene.children);
+            const intersects = raycaster.intersectObjects(scene.children.filter(child => child.name.includes("Table")), false); // false -> non-recursive, better performance
 
             // If there are intersected objects with the ray...
             if (intersects.length > 0) {
                 let top_object = intersects[0].object
+                let tableName = top_object.name;
 
-                // Check if intersected object is a table, and what table.
-                if (top_object.name.includes("Table1")){ 
-                    gsap.to(controls.target,{ x: 10, y: 3, z: -4, duration: 1, ease: 'power2.inOut'});
-                    gsap.to(camera.position,{ x: 5, y: 4, z: -4, duration: 1, ease: 'power2.inOut'});
-                } else if (top_object.name.includes("Table2")){ 
-                    gsap.to(controls.target,{ x: 10, y: 3, z: 1, duration: 1, ease: 'power2.inOut'});
-                    gsap.to(camera.position,{ x: 5, y: 4, z: 1, duration: 1, ease: 'power2.inOut'});
+                // Check which if and which table is clicked
+                if (tableName.includes("Table")) {
+                    let tableNumber = parseInt(tableName.replace("Table", ""), 10);
+                
+                    let positions = {
+                        target: { x: 10, y: 3, z: 0 },
+                        camera: { x: 5, y: 4, z: 0 }
+                    };
+                
+                    if (tableNumber >= 1 && tableNumber <= 4) {
+                        positions.target.x = 10;
+                        positions.camera.x = 5;
+                        positions.target.z = [-4.65, 0.28, 5.24, 10.21][tableNumber - 1];
+                        positions.camera.z = positions.target.z;
+                    } else if (tableNumber >= 5 && tableNumber <= 8) {
+                        positions.target.x = -6;
+                        positions.camera.x = 5;
+                        positions.target.z = [-4.65, 0.28, 5.24, 10.21][tableNumber - 5];
+                        positions.camera.z = positions.target.z;
+                    } else if (tableNumber >= 9 && tableNumber <= 12) {
+                        positions.target.x = -2;
+                        positions.camera.x = -8;
+                        positions.target.z = [-4.65, 0.28, 5.24, 10.21][tableNumber - 9];
+                        positions.camera.z = positions.target.z;
+                    } else if (tableNumber >= 13 && tableNumber <= 16) {
+                        positions.target.x = -13.5;
+                        positions.camera.x = -8;
+                        positions.target.z = [-4.65, 0.28, 5.24, 10.21][tableNumber - 13];
+                        positions.camera.z = positions.target.z;
+                    }
+                
+                    gsap.to(controls.target, { ...positions.target, duration: 1, ease: 'power2.inOut' });
+                    gsap.to(camera.position, { ...positions.camera, duration: 1, ease: 'power2.inOut' });
                 }
-            }
+            } 
              
     };
 
@@ -273,7 +337,6 @@ rst_cam_btn.onclick = function(){
 
 // ---------- Properties ----------
 
-// ! NOT WORKING ! 
 // [1] Overview Position Projection (HTML Element Following Object)
 
 // Creation of Label Renderer as a CSS2D Renderer
@@ -285,13 +348,64 @@ rst_cam_btn.onclick = function(){
     document.body.appendChild( labelRenderer.domElement );
 
 // Creation of HTML Objects that will be placed as labels on 3D space
-    var temp1 = document.createElement('p');
-    temp1.textContent = "26°";      // = function call to curl temperature from REST API, external JS?
-    temp1.className = "label";      // Temporary CSS -- To add: color of border and font will depend on temperature (hot = red, cold = blue)
-    const temp1_label = new CSS2DObject(temp1);
-    scene.add(temp1_label);
-    temp1_label.position.set(9.79,3,-4.65); 
+    const temp_labels = [];
 
+    table_positions.forEach((pos) => {
+        let tempElement = document.createElement('p');
+        tempElement.textContent = "Loading..."; // Placeholder for REST API data
+        tempElement.className = "label";  // Apply styling based on temperature
+
+        let tempLabel = new CSS2DObject(tempElement);
+        scene.add(tempLabel);
+        tempLabel.position.set(...pos);
+
+        temp_labels.push(tempElement); // Store references for later updates
+    });
+
+// Hide labels if checkbox is turned off
+    const temp_checkbox = document.getElementById("temp_checkbox");
+
+    function checkbox()  {
+        let opacityValue = temp_checkbox.checked ? '75%' : '0%';    // true : false
+
+        for (let i = 0; i < 16; i++) {
+            temp_labels[i].style.opacity = opacityValue;
+        }
+    }
+    
+    
+
+// [2] Getting Information from REST API
+
+// !!! Working incomplete !!!    
+// API for get requests
+
+const msr_2_ids = [
+    '2b7624',
+    '87a5f4',
+    'c07ce8',
+    'cc0b5c'
+];
+
+
+function table_update() {
+    msr_2_ids.forEach((id, index) => {
+        fetch(`http://192.168.1.7:80/msr-2/${id}`, { headers: { accept: '/' } })    // IP address to change
+            .then(res => res.json())
+            .then(data => {
+                // Changing the temperature value
+                if (temp_labels[index]) {
+                    temp_labels[index].textContent = `${(data['temperature'] + Math.random()).toFixed(2)}°C`; // REMOVE Math.random()
+                }
+            })
+            .catch(error => console.error(`Error fetching sensor ${id}:`, error));
+            
+            // Changing color based on temperature value
+        });
+}
+
+table_update();
+setInterval(table_update, 5000); // Run function every 1000ms (1s) change to 10s
 
 
 
@@ -305,11 +419,12 @@ const cam_test = document.getElementById("CAM_TEST");
 
 // [X] Creating a looping function
 function animate(t = 0) {
-    cam_test.innerHTML = camera.position.x + " " + camera.position.y + " " + camera.position.z;
+    cam_test.innerHTML = camera.position.x.toFixed(2) + " " + camera.position.y.toFixed(2) + " " + camera.position.z.toFixed(2);
     requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-    controls.update();
-    composer.render();
-    labelRenderer.render(scene, camera);
+    renderer.render(scene, camera);         // Render Scene
+    controls.update();                      // Update OrbitControls
+    composer.render();                      // Render Composre (for OutlinePass)
+    labelRenderer.render(scene, camera);    // Render Labels
+    checkbox();                             // Check if checkbox is selected
   };
   animate();

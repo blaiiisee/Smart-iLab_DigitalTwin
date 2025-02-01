@@ -2,45 +2,6 @@ body {
   margin: 0;
 }
 
-/* Tools div Style Properties */
-#tools {
-	display:block;
-  font-family: Lexend;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  margin: 10px;
-  padding: 10px;
-}
-
-#tool_icon {
-  margin-bottom: -20px;
-  margin-right: 5px;
-}
-
-/* Button Style Properties */
-/* From Uiverse.io by KhelVers */ 
-.button {
-  cursor: pointer;
-  font-size: small;
-  font-family: inherit;
-  font-weight: normal;
-  color: #006CAF;
-  background-color: #f8f8fd;
-  padding: 0.8em 2.2em;
-  border-radius: 50em;
-  border: 6px solid #1FAEF2;
-  box-shadow: 0px 8px #006CAF;
-}
-.button:active {
-  position: relative;
-  top: 8px;
-  border: 6px solid #006CAF;
-  box-shadow: 0px 0px;
-}
-
-
-
 /* Only Testing Camera */
 #CAM_TEST {
   display:block;
@@ -64,7 +25,81 @@ body {
 
 }
 
-/* Labels CSS */
+/* Tools div Style Properties */
+#tools {
+	display:block;
+  font-family: Lexend;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  margin: 10px;
+  padding: 10px;
+}
+
+#tools_top {
+  margin-bottom: 30px;
+}
+
+/* Button Style Properties */
+/* From Uiverse.io by WhiteNervosa */ 
+button {
+  background-color: #1FAEF2;
+  padding: 5px 10px;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 1);
+  cursor: pointer;
+  width: fit-content;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  touch-action: none;
+  position: relative;
+  border: none;
+  transition-property: box-shadow, background-color;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: rgba(0, 0, 0, 0.26) 0px -4px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px -1px 1px 0px, rgba(0, 0, 0, 0.15) 0px 3px 6px 2px;
+}
+
+#rst_cam_btn {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+#top_cam_btn {
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+button:hover {
+  background-color: #006CAF;
+  box-shadow: rgba(0, 0, 0, 0.26) 0px -4px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px -1px 1px 0px, rgba(0, 0, 0, 0.15) 0px 3px 6px 2px;
+}
+
+button:active {
+  box-shadow: inset 0px 2px 0px 1px rgb(0 0 0 / 29%), inset 0px -1px 0px 0px rgb(230 230 230 / 7%);
+}
+
+button .inner {
+  font-size: 18px;
+  font-weight: 900;
+  user-select: none;
+  pointer-events: none;
+  transform: translateY(0px) scale(1) translate3d(0, 0, 0);
+  transition-property: transform;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+button:active .inner {
+  transform: translateY(1px) scale(0.98) translate3d(0, 0, 0);
+}
+
+
+
+/* Labels Styling */
 .label {
   font-family: Lexend;
   font-size: xx-small;
@@ -74,5 +109,89 @@ body {
   border-radius: 50em;
   border: 3px solid #1FAEF2;
   box-shadow: 0px 0px;
-  opacity: 75%;
+}
+
+/* Checkbox Styling */
+/* From Uiverse.io by WhiteNervosa */ 
+.customCheckBoxHolder {
+  margin: 14.5px;
+  display: flex;
+}
+
+.customCheckBox {
+  width: fit-content;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  padding: 2px 8px;
+  background-color: rgba(0, 0, 0, 0.16);
+  border-radius: 0px;
+  color: rgba(255, 255, 255, 0.7);
+  transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition-duration: 300ms;
+  transition-property: color, background-color, box-shadow;
+  display: flex;
+  height: 32px;
+  align-items: center;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px 1px 1px 0px;
+  outline: none;
+  justify-content: center;
+  min-width: 55px;
+}
+
+.customCheckBox:hover {
+  background-color: #2c2c2c;
+  color: white;
+  box-shadow: rgba(0, 0, 0, 0.23) 0px -4px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px -1px 1px 0px, rgba(0, 0, 0, 0.17) 0px 2px 4px 1px;
+}
+
+.customCheckBox .inner {
+  font-size: 18px;
+  font-weight: 900;
+  pointer-events: none;
+  transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition-duration: 300ms;
+  transition-property: transform;
+  transform: translateY(0px);
+}
+
+.customCheckBox:hover .inner {
+  transform: translateY(-2px);
+}
+
+/* Multiple Checkboxes can be chained together for a radio input */
+.customCheckBoxWrapper:first-of-type .customCheckBox {
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+  border-right: 0px;
+}
+
+.customCheckBoxWrapper:last-of-type .customCheckBox {
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+  border-left: 0px;
+}
+
+.customCheckBoxInput {
+  display: none;
+}
+
+.customCheckBoxInput:checked + .customCheckBoxWrapper .customCheckBox {
+  background-color: #1FAEF2;
+  color: white;
+  box-shadow: rgba(0, 0, 0, 0.23) 0px -4px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px -1px 1px 0px, rgba(0, 0, 0, 0.17) 0px 2px 4px 1px;
+}
+
+.customCheckBoxInput:checked + .customCheckBoxWrapper .customCheckBox .inner {
+  transform: translateY(-2px);
+}
+
+.customCheckBoxInput:checked + .customCheckBoxWrapper .customCheckBox:hover {
+  background-color: #006CAF;
+  box-shadow: rgba(0, 0, 0, 0.26) 0px -4px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px -1px 1px 0px, rgba(0, 0, 0, 0.15) 0px 3px 6px 2px;
+}
+
+.customCheckBoxWrapper .customCheckBox:hover .inner {
+  transform: translateY(-2px);
 }
