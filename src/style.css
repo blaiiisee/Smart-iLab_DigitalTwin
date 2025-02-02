@@ -43,12 +43,12 @@ body {
 /* Button Style Properties */
 /* From Uiverse.io by WhiteNervosa */ 
 button {
-  background-color: #1FAEF2;
+  background-color: #494949;
   padding: 5px 10px;
   font-size: 18px;
   color: rgba(255, 255, 255, 1);
   cursor: pointer;
-  width: fit-content;
+  width: 10em;
   user-select: none;
   display: flex;
   justify-content: center;
@@ -74,7 +74,7 @@ button {
 }
 
 button:hover {
-  background-color: #006CAF;
+  background-color: #202020;
   box-shadow: rgba(0, 0, 0, 0.26) 0px -4px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px -1px 1px 0px, rgba(0, 0, 0, 0.15) 0px 3px 6px 2px;
 }
 
@@ -103,11 +103,11 @@ button:active .inner {
 .label {
   font-family: Lexend;
   font-size: xx-small;
-  color: #006CAF;
+  color: #202020;
   background-color: #f8f8fd;
   padding: 0.4em 0.8em;
   border-radius: 50em;
-  border: 3px solid #1FAEF2;
+  border: 3px solid #494949;
   box-shadow: 0px 0px;
 }
 
@@ -119,7 +119,7 @@ button:active .inner {
 }
 
 .customCheckBox {
-  width: fit-content;
+  width: 8em;
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -137,7 +137,7 @@ button:active .inner {
   box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px 1px 1px 0px;
   outline: none;
   justify-content: center;
-  min-width: 55px;
+  min-width: 65px;
 }
 
 .customCheckBox:hover {
@@ -178,7 +178,7 @@ button:active .inner {
 }
 
 .customCheckBoxInput:checked + .customCheckBoxWrapper .customCheckBox {
-  background-color: #1FAEF2;
+  background-color: #494949;
   color: white;
   box-shadow: rgba(0, 0, 0, 0.23) 0px -4px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px -1px 1px 0px, rgba(0, 0, 0, 0.17) 0px 2px 4px 1px;
 }
@@ -188,7 +188,7 @@ button:active .inner {
 }
 
 .customCheckBoxInput:checked + .customCheckBoxWrapper .customCheckBox:hover {
-  background-color: #006CAF;
+  background-color: #202020;
   box-shadow: rgba(0, 0, 0, 0.26) 0px -4px 1px 0px inset, rgba(255, 255, 255, 0.17) 0px -1px 1px 0px, rgba(0, 0, 0, 0.15) 0px 3px 6px 2px;
 }
 
