@@ -387,7 +387,7 @@ const msr_2_ids = [
     'cc0b5c'
 ];
 
-
+// To add: Update ALL tables in this one function
 function table_update() {
     msr_2_ids.forEach((id, index) => {
         fetch(`http://192.168.1.7:80/msr-2/${id}`, { headers: { accept: '/' } })    // IP address to change
@@ -400,7 +400,7 @@ function table_update() {
             })
             .catch(error => console.error(`Error fetching sensor ${id}:`, error));
             
-            // Changing color based on temperature value
+            // To add: Changing color based on temperature value
         });
 }
 
