@@ -1,9 +1,5 @@
 body {
   margin: 0;
-  align-items: center;
-  justify-content: center;
-  display: flex;
-  pointer-events: none; /* CHANGE IN CODE */
 }
 
 /* Only Testing Camera */
@@ -28,21 +24,6 @@ body {
   padding: 10px;
 
 }
-
-/* Detailed View Style */
-#detailed_view {
-  width: 90%;
-  height: 90%;
-  display: block;
-  position: absolute;
-  align-self: center;
-  background-color: #494949;
-  opacity: 70%;
-  border-radius: 50px;
-  z-index: 9999; /* Maximum Z-Index */
-  pointer-events: auto; /* Allow interactions inside */
-}
-
 
 /* Tools div Style Properties */
 #tools {

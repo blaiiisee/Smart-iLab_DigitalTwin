@@ -515,7 +515,7 @@ setInterval(table_update, 5000); // Run function every 1000ms (1s) change to 10s
 const cam_test = document.getElementById("CAM_TEST");
 
 // [X] Creating a looping function
-function animate() {
+function animate(t = 0) {
     cam_test.innerHTML = camera.position.x.toFixed(2) + " " + camera.position.y.toFixed(2) + " " + camera.position.z.toFixed(2);
     requestAnimationFrame(animate);
     renderer.render(scene, camera);         // Render Scene
