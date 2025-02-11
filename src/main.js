@@ -270,7 +270,19 @@ rst_cam_btn.onclick = function(){
     // Event listener for mouse moving, calls function 'onMouseMove'
     window.addEventListener('mousemove', onMouseMove);
 
-    // [2.4] Move Camera to table view onClick
+    // [2.4] Move Camera to table view onClick + Show dashboard
+    
+    const closeBtn = document.getElementById("closeModal");     // Dashboard close button
+    const modal = document.getElementById("modal");             // Dashboard reference
+
+    closeBtn.addEventListener("click", () => {
+        modal.classList.remove("open");                                                     // Close Dashboard
+        window.addEventListener('mousemove', onMouseMove);                                  // Turn on raycasting for onMouseMove
+        window.addEventListener('click', onMouseClick);                                     // Turn on raycasting for onMouseClick
+        gsap.to(controls.target,{ x: 0, y: 0, z: 0, duration: 1, ease: 'power2.inOut'});    // Return to default view
+        gsap.to(camera.position,{ x: 20, y: 20, z: 20, duration: 1, ease: 'power2.inOut'});
+    });
+
 
     // When mouse is clicked: Function for calculating pointer position, raycasting information...
     const onMouseClick = (event) => {
@@ -318,8 +330,22 @@ rst_cam_btn.onclick = function(){
                         positions.camera.z = positions.target.z;
                     }
                 
-                    gsap.to(controls.target, { ...positions.target, duration: 1, ease: 'power2.inOut' });
-                    gsap.to(camera.position, { ...positions.camera, duration: 1, ease: 'power2.inOut' });
+                    gsap.to(controls.target, { ...positions.target, duration: 1, ease: 'power2.inOut' });   // Look at table
+                    gsap.to(camera.position, { ...positions.camera, duration: 1, ease: 'power2.inOut' });   // Set camera position
+                    document.getElementById("the_body").style.cursor = "default";       // Turn pointer to default
+                    modal.classList.add("open");                                        // Open Dashboard
+                    window.removeEventListener('mousemove', onMouseMove);               // Turn off raycasting for onMouseMove
+                    window.removeEventListener('click', onMouseClick);                  // Turn off raycasting for onMouseClick
+
+                    // Add table number in Dashboard view
+                    document.getElementById("table_num").innerHTML = '<img src="/assets/icons/table-Icon.png" height="15px" style="margin-right: 10px;">Table '+tableNumber;
+                    // Add last updated time in Dashboard view
+                    document.getElementById("last_update").innerHTML = time_update;
+                    // Add sensor ID in dashboard sensor header
+                    document.getElementById("msr-2-id").innerHTML = '#'+ msr_2_ids[tableNumber-1];
+                    document.getElementById("air-1-id").innerHTML = '#'+ air_1_ids[tableNumber-1];
+                    document.getElementById("smart-plug-1-id").innerHTML = '#'+ smart_plug_1_ids[tableNumber-1];
+                    document.getElementById("smart-plug-2-id").innerHTML = '#'+ smart_plug_2_ids[tableNumber-1];
                 }
             } 
              
@@ -379,12 +405,82 @@ rst_cam_btn.onclick = function(){
 
 // !!! Working incomplete !!!    
 // API for get requests
+var time_update;
 
 const msr_2_ids = [
     '2b7624',
     '87a5f4',
     'c07ce8',
-    'cc0b5c'
+    'cc0b5c',
+    '89f464',
+    '87a5dc',
+    '1ee998',
+    '87a5ec',
+    '1ef110',
+    '87a298',
+    '89304c',
+    '88edc8',
+    'cd7014',
+    'c660fc',
+    'c8f5b4',
+    'c7b650'
+];
+
+const air_1_ids = [
+    '88e4c8',
+    '89e8d8',
+    '88e590',
+    '87b074',
+    '889720',
+    '87f510',
+    '2da640',
+    '89ea14',
+    '889b88',
+    '889938',
+    '88e85c',
+    '89e548',
+    '88970c',
+    '2deb24',
+    '89e5f0',
+    'cc8f24'
+];
+
+const smart_plug_1_ids =[
+    '9d86e0',
+    '9d9572',
+    '9d923d',
+    '9d929b',
+    '9d88e7',
+    '9d929e',
+    '9d9421',
+    '9d89d4',
+    '9d92a3',
+    '9d8718',
+    '9d3535',
+    '9d90c3',
+    '9d97ec',
+    '9d927c',
+    '9d88c5',
+    '9cdee5'
+];
+
+const smart_plug_2_ids = [
+    '9d86aa',
+    '9d93d2',
+    '9d8665',
+    '9d9293',
+    '9d924e',
+    '9d9265',
+    '9d8877',
+    '9d8a03',
+    '9d88e6',
+    '9cda9a',
+    '9d90b9',
+    '9d94a6',
+    '9d8671',
+    '9d356f',
+    '9d887f',
+    '9d893e'
 ];
 
 // To add: Update ALL tables in this one function
@@ -397,9 +493,10 @@ function table_update() {
                 if (temp_labels[index]) {
                     temp_labels[index].textContent = `${(data['temperature'] + Math.random()).toFixed(2)}°C`; // REMOVE Math.random()
                 }
+                // REMOVE THIS FOR LAST UPDATED TIME -- DASHBOARD HEADER
+                if (id == 'cc0b5c') {time_update = `Server last updated: ${data['timestamp']}`;}
             })
             .catch(error => console.error(`Error fetching sensor ${id}:`, error));
-            
             // To add: Changing color based on temperature value
         });
 }

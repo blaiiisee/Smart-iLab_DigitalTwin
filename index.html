@@ -25,6 +25,46 @@
     <!--
       <script type="module" src="/src/sphere_and_cube.js"></script>
     -->
+
+    <div class="modal" id="modal">
+      <!-- Dashboard itself -->
+      <div class="modal-inner">
+        <div id="dash_header">
+          <h2 id="table_num"><img src="/assets/icons/table-Icon.png" height="15px" style="margin-right: 10px;">Table x</h2>
+          <p id="last_update">Last Updated: hh:mm:ss dd/mm/yy</p>
+          <button id="closeModal"><img src="/assets/icons/close-icon.png" height="15px" style="margin-right: 5px;"">Close</button>
+        </div>
+
+        <div id="dash_body">
+          <div class="sensor_data">
+            <div class="sensor_header">
+              <h3>msr-2</h3>
+              <p id="msr-2-id" style="opacity: 0.5;">#sensor_id</p>
+            </div>
+          </div>
+          <div class="sensor_data">
+            <div class="sensor_header">
+              <h3>air-1</h3>
+              <p id="air-1-id" style="opacity: 0.5;">#sensor_id</p>
+            </div>
+          </div>
+          <div class="sensor_data">
+            <div class="sensor_header">
+              <h3>[1] smart-plug-v2</h3>
+              <p id="smart-plug-1-id" style="opacity: 0.5;">#sensor_id</p>
+            </div>
+          </div>
+          <div class="sensor_data">
+            <div class="sensor_header">
+              <h3>[2] smart-plug-v2</h3>
+              <p id="smart-plug-2-id" style="opacity: 0.5;">#sensor_id</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     
     <!--Tools div located at bottom left of page-->
     <div id="tools">
