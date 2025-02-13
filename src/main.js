@@ -2,7 +2,7 @@
 // npm install three
 // npm install gsap
 
-
+const ip = "http://192.168.1.7:80"; // IP of REST API
 
 
 
@@ -346,6 +346,8 @@ rst_cam_btn.onclick = function(){
                     document.getElementById("air-1-id").innerHTML = '#'+ air_1_ids[tableNumber-1];
                     document.getElementById("smart-plug-1-id").innerHTML = '#'+ smart_plug_1_ids[tableNumber-1];
                     document.getElementById("smart-plug-2-id").innerHTML = '#'+ smart_plug_2_ids[tableNumber-1];
+
+                    setInterval(update_sensors(tableNumber), 10000);
                 }
             } 
              
@@ -407,6 +409,7 @@ rst_cam_btn.onclick = function(){
 // API for get requests
 var time_update;
 
+// Future reference: GET msr_2_ids instead?
 const msr_2_ids = [
     '2b7624',
     '87a5f4',
@@ -486,12 +489,12 @@ const smart_plug_2_ids = [
 // To add: Update ALL tables in this one function
 function table_update() {
     msr_2_ids.forEach((id, index) => {
-        fetch(`http://192.168.1.7:80/msr-2/${id}`, { headers: { accept: '/' } })    // IP address to change
+        fetch(ip + `/msr-2/${id}`, { headers: { accept: '/' } })    // IP address to change
             .then(res => res.json())
             .then(data => {
                 // Changing the temperature value
                 if (temp_labels[index]) {
-                    temp_labels[index].textContent = `${(data['temperature'] + Math.random()).toFixed(2)}°C`; // REMOVE Math.random()
+                    temp_labels[index].textContent = `${(data['temperature']).toFixed(2)}°C`; // REMOVE Math.random()
                 }
                 // REMOVE THIS FOR LAST UPDATED TIME -- DASHBOARD HEADER
                 if (id == 'cc0b5c') {time_update = `Server last updated: ${data['timestamp']}`;}
@@ -502,15 +505,71 @@ function table_update() {
 }
 
 table_update();
-setInterval(table_update, 5000); // Run function every 1000ms (1s) change to 10s
+setInterval(table_update, 10000); // Run function every 10000ms (10s)
 
+// Function to update data in Dashboard view
+function update_sensors(table_no){
 
+    document.querySelectorAll(".sensor_data").forEach(el => el.innerHTML = "");     // Clear all data to refresh
+
+    fetch(ip + `/msr-2/${msr_2_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
+            .then(res => res.json())
+            .then(data => {
+                let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
+                keys.forEach((id, index) => {           // For each parameter, careful with changing this
+                    document.getElementById("msr-2-data").innerHTML = document.getElementById("msr-2-data").innerHTML + 
+                    `<div class="key-value">
+                    <p class="key">${keys[index]}</p>
+                    <p class="value">${data[keys[index]]}</p>
+                    </div>`;
+                    
+                });
+            });
+    fetch(ip + `/air-1/${air_1_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
+            .then(res => res.json())
+            .then(data => {
+                let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
+                keys.forEach((id, index) => {           // For each parameter, careful with changing this
+                    document.getElementById("air-1-data").innerHTML = document.getElementById("air-1-data").innerHTML + 
+                    `<div class="key-value">
+                    <p class="key">${keys[index]}</p>
+                    <p class="value">${data[keys[index]]}</p>
+                    </div>`;
+                    
+                });
+            });
+    fetch(ip + `/smart-plug-v2/${smart_plug_1_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
+            .then(res => res.json())
+            .then(data => {
+                let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
+                keys.forEach((id, index) => {           // For each parameter, careful with changing this
+                    document.getElementById("smart-plug-1-data").innerHTML = document.getElementById("smart-plug-1-data").innerHTML + 
+                    `<div class="key-value">
+                    <p class="key">${keys[index]}</p>
+                    <p class="value">${data[keys[index]]}</p>
+                    </div>`;
+                    
+                });
+            });
+    fetch(ip + `/smart-plug-v2/${smart_plug_2_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
+            .then(res => res.json())
+            .then(data => {
+                let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
+                keys.forEach((id, index) => {           // For each parameter, careful with changing this
+                    document.getElementById("smart-plug-2-data").innerHTML = document.getElementById("smart-plug-2-data").innerHTML + 
+                    `<div class="key-value">
+                    <p class="key">${keys[index]}</p>
+                    <p class="value">${data[keys[index]]}</p>
+                    </div>`;
+                    
+                });
+            });
+}
 
 
 
 
 // ---------- RENDERING ----------
-
 // For Camera Testing:
 const cam_test = document.getElementById("CAM_TEST");
 
