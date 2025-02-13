@@ -275,14 +275,16 @@ rst_cam_btn.onclick = function(){
     const closeBtn = document.getElementById("closeModal");     // Dashboard close button
     const modal = document.getElementById("modal");             // Dashboard reference
 
+    var dashboard_data;
+
     closeBtn.addEventListener("click", () => {
+        clearInterval(dashboard_data);                                                      // Stop updating for a table
         modal.classList.remove("open");                                                     // Close Dashboard
         window.addEventListener('mousemove', onMouseMove);                                  // Turn on raycasting for onMouseMove
         window.addEventListener('click', onMouseClick);                                     // Turn on raycasting for onMouseClick
         gsap.to(controls.target,{ x: 0, y: 0, z: 0, duration: 1, ease: 'power2.inOut'});    // Return to default view
         gsap.to(camera.position,{ x: 20, y: 20, z: 20, duration: 1, ease: 'power2.inOut'});
     });
-
 
     // When mouse is clicked: Function for calculating pointer position, raycasting information...
     const onMouseClick = (event) => {
@@ -339,15 +341,14 @@ rst_cam_btn.onclick = function(){
 
                     // Add table number in Dashboard view
                     document.getElementById("table_num").innerHTML = '<img src="/assets/icons/table-Icon.png" height="15px" style="margin-right: 10px;">Table '+tableNumber;
-                    // Add last updated time in Dashboard view
-                    document.getElementById("last_update").innerHTML = time_update;
                     // Add sensor ID in dashboard sensor header
                     document.getElementById("msr-2-id").innerHTML = '#'+ msr_2_ids[tableNumber-1];
                     document.getElementById("air-1-id").innerHTML = '#'+ air_1_ids[tableNumber-1];
                     document.getElementById("smart-plug-1-id").innerHTML = '#'+ smart_plug_1_ids[tableNumber-1];
                     document.getElementById("smart-plug-2-id").innerHTML = '#'+ smart_plug_2_ids[tableNumber-1];
 
-                    setInterval(update_sensors(tableNumber), 10000);
+                    update_sensors(tableNumber)                                             // Initial update for a table
+                    dashboard_data = setInterval(() => update_sensors(tableNumber), 10000); // Update every 10s for a table
                 }
             } 
              
@@ -497,7 +498,11 @@ function table_update() {
                     temp_labels[index].textContent = `${(data['temperature']).toFixed(2)}°C`; // REMOVE Math.random()
                 }
                 // REMOVE THIS FOR LAST UPDATED TIME -- DASHBOARD HEADER
-                if (id == 'cc0b5c') {time_update = `Server last updated: ${data['timestamp']}`;}
+                if (id == 'cc0b5c') {
+                    time_update = `Server last updated: ${data['timestamp']}`;
+                    // Add last updated time in Dashboard view
+                    document.getElementById("last_update").innerHTML = time_update;
+                }
             })
             .catch(error => console.error(`Error fetching sensor ${id}:`, error));
             // To add: Changing color based on temperature value
@@ -505,11 +510,10 @@ function table_update() {
 }
 
 table_update();
-setInterval(table_update, 10000); // Run function every 10000ms (10s)
+const table_temperature = setInterval(table_update, 10000); // Run function every 10000ms (10s)
 
 // Function to update data in Dashboard view
 function update_sensors(table_no){
-
     document.querySelectorAll(".sensor_data").forEach(el => el.innerHTML = "");     // Clear all data to refresh
 
     fetch(ip + `/msr-2/${msr_2_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change

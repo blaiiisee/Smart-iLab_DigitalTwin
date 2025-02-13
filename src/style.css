@@ -345,8 +345,18 @@ body {
   align-items: center; /* Align items vertically in the center */
   justify-content: space-between; /* Space items evenly */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0px;
   text-justify: inter-word;
+  background-color: rgba(200, 200, 200, 0.5);
+  border-radius: 3px;
+  margin-top: 2px;
+  margin-left: 5px;
+  margin-right: 5px;
+  transition-duration: 100ms;
+  transition-property: background-color;
+}
+
+.key-value:hover {
+  background-color: rgb(165, 165, 165);
 }
 
 .key {
@@ -355,10 +365,13 @@ body {
   font-weight: bold;
   margin-top: 3px;
   margin-bottom: 3px;
+  color: rgb(20, 20, 20);
 }
 
 .value {
   margin-top: 3px;
   margin-bottom: 3px;
+  margin-right: 10px;
   text-align: end;
+  color: rgb(20, 20, 20);
 }
