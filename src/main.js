@@ -28,6 +28,8 @@ import { ShaderPass } from 'jsm/postprocessing/ShaderPass.js';
 import { GammaCorrectionShader } from 'jsm/shaders/GammaCorrectionShader.js';
 // CSS2D for HTML Position Projection 
 import { CSS2DRenderer, CSS2DObject } from 'jsm/renderers/CSS2DRenderer.js';
+// Chart.js for data visualization -- graphical representation
+//import { Chart } from './node_modules/chart.js/auto/auto.js';
 
 
 // [1] The Three + 1 Fundamentals
@@ -514,59 +516,62 @@ const table_temperature = setInterval(table_update, 10000); // Run function ever
 
 // Function to update data in Dashboard view
 function update_sensors(table_no){
-    document.querySelectorAll(".sensor_data").forEach(el => el.innerHTML = "");     // Clear all data to refresh
-
+  
     fetch(ip + `/msr-2/${msr_2_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
             .then(res => res.json())
             .then(data => {
                 let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
+                let new_data = "";                      // Store new data to be shown as HTML
                 keys.forEach((id, index) => {           // For each parameter, careful with changing this
-                    document.getElementById("msr-2-data").innerHTML = document.getElementById("msr-2-data").innerHTML + 
+                    new_data = new_data + 
                     `<div class="key-value">
                     <p class="key">${keys[index]}</p>
                     <p class="value">${data[keys[index]]}</p>
                     </div>`;
-                    
                 });
+                document.getElementById("msr-2-data").innerHTML = new_data;
             });
     fetch(ip + `/air-1/${air_1_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
             .then(res => res.json())
             .then(data => {
                 let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
+                let new_data = "";                      // Store new data to be shown as HTML
                 keys.forEach((id, index) => {           // For each parameter, careful with changing this
-                    document.getElementById("air-1-data").innerHTML = document.getElementById("air-1-data").innerHTML + 
+                    new_data = new_data + 
                     `<div class="key-value">
                     <p class="key">${keys[index]}</p>
                     <p class="value">${data[keys[index]]}</p>
                     </div>`;
-                    
                 });
+                document.getElementById("air-1-data").innerHTML = new_data;
             });
     fetch(ip + `/smart-plug-v2/${smart_plug_1_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
             .then(res => res.json())
             .then(data => {
                 let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
+                let new_data = "";                      // Store new data to be shown as HTML
                 keys.forEach((id, index) => {           // For each parameter, careful with changing this
-                    document.getElementById("smart-plug-1-data").innerHTML = document.getElementById("smart-plug-1-data").innerHTML + 
+                    new_data = new_data + 
                     `<div class="key-value">
                     <p class="key">${keys[index]}</p>
                     <p class="value">${data[keys[index]]}</p>
                     </div>`;
-                    
                 });
+                document.getElementById("smart-plug-1-data").innerHTML = new_data;
             });
     fetch(ip + `/smart-plug-v2/${smart_plug_2_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
             .then(res => res.json())
             .then(data => {
                 let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
+                let new_data = "";                      // Store new data to be shown as HTML
                 keys.forEach((id, index) => {           // For each parameter, careful with changing this
-                    document.getElementById("smart-plug-2-data").innerHTML = document.getElementById("smart-plug-2-data").innerHTML + 
+                    new_data = new_data + 
                     `<div class="key-value">
                     <p class="key">${keys[index]}</p>
                     <p class="value">${data[keys[index]]}</p>
                     </div>`;
-                    
                 });
+                document.getElementById("smart-plug-2-data").innerHTML = new_data;
             });
 }
 
