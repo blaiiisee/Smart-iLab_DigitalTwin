@@ -292,6 +292,14 @@ body {
   box-shadow: inset 0px 2px 0px 1px rgb(0 0 0 / 29%), inset 0px -1px 0px 0px rgb(230 230 230 / 7%);
 }
 
+#download_data:hover{
+  cursor:pointer;
+}
+
+#download_data:hover p{
+  color: rgba(69, 177, 139, 0.986);
+}
+
 /* Dashboard body */
 #dash_body_header {
   width: 100%;
@@ -332,12 +340,26 @@ body {
   overflow-y: hidden;
 }
 
-.sensor_data{
+/* Check JavaScript code for this element */
+.download_label{
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+}
+
+.sensor_data {
   width:25%;
-  overflow-y:auto;
+  overflow-y: auto;
   padding-left: 5px;
   padding-right: 5px;
+  -ms-overflow-style: none;  /* Hide in IE and Edge */
+  scrollbar-width: none;  /* Hide in Firefox */
 }
+
+/* Hide scrollbar in Safari, Chrome and Opera */
+.sensor_data::-webkit-scrollbar {
+  display: none;
+}
+
 
 /* Careful with changing this, these elements are added via JS innerHTML */
 .key-value {

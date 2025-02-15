@@ -278,6 +278,7 @@ rst_cam_btn.onclick = function(){
     const modal = document.getElementById("modal");             // Dashboard reference
 
     var dashboard_data;
+    var current_table;
 
     closeBtn.addEventListener("click", () => {
         clearInterval(dashboard_data);                                                      // Stop updating for a table
@@ -286,6 +287,27 @@ rst_cam_btn.onclick = function(){
         window.addEventListener('click', onMouseClick);                                     // Turn on raycasting for onMouseClick
         gsap.to(controls.target,{ x: 0, y: 0, z: 0, duration: 1, ease: 'power2.inOut'});    // Return to default view
         gsap.to(camera.position,{ x: 20, y: 20, z: 20, duration: 1, ease: 'power2.inOut'});
+        // Reset dashboard view
+        document.getElementById("output_data").innerHTML = `
+                  <div class="sensor_data " id="msr-2-data">
+            <!--Added via JavaScript innerHTML-->
+          </div>
+          <div class="sensor_data" id="air-1-data">
+            <!--Added via JavaScript innerHTML-->
+          </div>
+          <div class="sensor_data" id="smart-plug-1-data">
+            <!--Added via JavaScript innerHTML-->
+          </div>
+          <div class="sensor_data" id="smart-plug-2-data">
+            <!--Added via JavaScript innerHTML-->
+          </div>
+        `;
+        document.getElementById("dash_body_header").style.opacity = '100%';             // Show devices and sensor IDs
+        document.getElementById("output_data").style.justifyContent = 'space-between';  // Hide devices and sensor IDs
+        document.getElementById("output_data").style.display = 'flex';                  // Hide devices and sensor IDs
+        dash_on = false;
+        document.getElementById("text_change").innerHTML = "Download Data";             // Change from "Display Data" -> "Download Data"
+        document.getElementById("dl_icon").src = "./assets/icons/download_icon.png";    // Change icon
     });
 
     // When mouse is clicked: Function for calculating pointer position, raycasting information...
@@ -348,7 +370,8 @@ rst_cam_btn.onclick = function(){
                     document.getElementById("air-1-id").innerHTML = '#'+ air_1_ids[tableNumber-1];
                     document.getElementById("smart-plug-1-id").innerHTML = '#'+ smart_plug_1_ids[tableNumber-1];
                     document.getElementById("smart-plug-2-id").innerHTML = '#'+ smart_plug_2_ids[tableNumber-1];
-
+                    
+                    current_table = tableNumber;
                     update_sensors(tableNumber)                                             // Initial update for a table
                     dashboard_data = setInterval(() => update_sensors(tableNumber), 10000); // Update every 10s for a table
                 }
@@ -573,6 +596,133 @@ function update_sensors(table_no){
                 });
                 document.getElementById("smart-plug-2-data").innerHTML = new_data;
             });
+}
+
+// [3] Downloading Historical Data from REST API while on Dashboard view
+
+    // Helpers for showing input view
+var dash_on = false;
+const change_interface = document.getElementById("download_data");
+
+change_interface.addEventListener("click",show_download_options);
+
+function show_download_options() {
+    if(dash_on){
+        // Go back to output data
+        document.getElementById("output_data").innerHTML = `
+                  <div class="sensor_data " id="msr-2-data">
+            <!--Added via JavaScript innerHTML-->
+          </div>
+          <div class="sensor_data" id="air-1-data">
+            <!--Added via JavaScript innerHTML-->
+          </div>
+          <div class="sensor_data" id="smart-plug-1-data">
+            <!--Added via JavaScript innerHTML-->
+          </div>
+          <div class="sensor_data" id="smart-plug-2-data">
+            <!--Added via JavaScript innerHTML-->
+          </div>
+        `;
+        update_sensors(current_table);                                                  // Initial update for a table
+        dashboard_data = setInterval(() => update_sensors(current_table), 10000);       // Update every 10s for a table
+        document.getElementById("dash_body_header").style.opacity = '100%';             // Show devices and sensor IDs
+        document.getElementById("output_data").style.justifyContent = 'space-between';  // Hide devices and sensor IDs
+        document.getElementById("output_data").style.display = 'flex';                  // Hide devices and sensor IDs
+        document.getElementById("text_change").innerHTML = "Download Data";             // Change from "Display Data" -> "Download Data"
+        document.getElementById("dl_icon").src = "./assets/icons/download_icon.png";    // Change icon
+    }else{
+        // Switch to download data view
+        clearInterval(dashboard_data);
+        document.getElementById("dl_icon").src = "./assets/icons/minimize_icon.png";    // Change icon
+        document.getElementById("text_change").innerHTML = "Display Data";              // Change from "Download Data" -> "Display Data"
+        document.getElementById("dash_body_header").style.opacity = '0%';               // Hide devices and sensor IDs
+        document.getElementById("output_data").style.justifyContent = 'space-around';   // Hide devices and sensor IDs
+        document.getElementById("output_data").style.display = 'block';                 // Hide devices and sensor IDs
+        document.getElementById("output_data").innerHTML = `
+        <h2 style="color: white; font-family:'Segoe UI'">Download Device Historical Data</h2>
+        <div>
+            <label class="download_label" for="start_time">Start Date and Time:</label>
+            <input type="datetime-local" id="start_time" name="start_time">
+        </div>
+        <div>
+            <label class="download_label" for="end_time">End Date and Time:</label>
+            <input type="datetime-local" id="end_time" name="end_time">
+        </div>
+        <div style="margin-top: 15px">
+            <label class="download_label for="select_device">Select Device:</label>
+
+            <select name="select_device" id="select_device">
+            <option value="msr-2">msr-2: ${msr_2_ids[current_table-1]}</option>
+            <option value="air-1">air-1: ${air_1_ids[current_table-1]}</option>
+            <option value="smart-plug-1">[1] smart-plug-v2: ${smart_plug_1_ids[current_table-1]}</option>
+            <option value="smart-plug-2">[2] smart-plug-v2: ${smart_plug_2_ids[current_table-1]}</option>
+            </select>
+        </div>
+        <button style="margin-top: 20px;" id="download_button">Download</button>
+        <p style="color: red; font-weight: bold; opacity: 0; font-family: 'Segoe UI'" id="warning">Please double check your input date(s)</p>
+
+        `;
+
+        let download_button = document.getElementById("download_button");
+        download_button.addEventListener("click", () => download_device_data());
+    }
+    dash_on = !dash_on;
+}
+
+    // Function to GET from REST API itself
+function download_device_data() {
+    let start = new Date(document.getElementById("start_time").value);
+    let end = new Date(document.getElementById("end_time").value);
+    let device = document.getElementById("select_device").value;
+    console.log(start + end + device);
+
+    if(start == "" || end == "" || end < start){
+        // If input is incorrect or lacking, warn the user and don't do anything
+        document.getElementById("warning").style.opacity = 0.9;
+    }else{
+        // If all good, fetch the data (if any)
+        document.getElementById("warning").style.opacity = 0;
+
+        let sensor_id;
+        if(device == 'msr-2'){
+            sensor_id = msr_2_ids[current_table-1];
+        }else if(device == 'air-1'){
+            sensor_id = air_1_ids[current_table-1];
+        }else if(device == 'smart-plug-1'){
+            sensor_id = smart_plug_1_ids[current_table-1];
+        }else{
+            sensor_id = smart_plug_2_ids[current_table-1];
+        }
+
+        start = encodeURIComponent(start.toISOString());
+        end = encodeURIComponent(end.toISOString());
+        let query = `time_start=${start}&time_end=${end}`;
+
+        fetch(ip + `/${device}/${sensor_id}?${query}`, { headers: { accept: '/' } })    // IP address to change
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                // Convert data to a JSON string
+                let jsonString = JSON.stringify(data, null, 2);
+
+                // Create a Blob (Binary Large Object) with JSON content
+                let blob = new Blob([jsonString], { type: "application/json" });
+
+                // Create a temporary download link
+                let a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = "data.json"; // File name
+
+                // Trigger download
+                document.body.appendChild(a);
+                a.click();
+
+                // Cleanup
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+            });
+
+    }
 }
 
 
