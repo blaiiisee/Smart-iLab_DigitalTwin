@@ -8,8 +8,10 @@
     <link rel="stylesheet" type="text/css" href="/src/style.css">
     <script>
     (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='https://mrdoob.github.io/stats.js/build/stats.min.js';document.head.appendChild(script);})()</script>
-    <!--GSAP For smooth transitions-->
+    <!--GSAP for smooth transitions-->
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+    <!--Chartjs for graphical representation of data-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="importmap">
 			{
 				"imports": {
@@ -79,6 +81,11 @@
             <!--Added via JavaScript innerHTML-->
           </div>
         </div>
+
+        <div id="chart_div">
+          <canvas id="myChart"></canvas>
+        </div>
+
       </div>
     </div>
 

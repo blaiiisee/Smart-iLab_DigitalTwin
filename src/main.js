@@ -2,7 +2,7 @@
 // npm install three
 // npm install gsap
 
-const ip = "http://192.168.1.7:80"; // IP of REST API
+const ip = "http://192.168.1.8:80"; // IP of REST API
 
 
 
@@ -308,6 +308,9 @@ rst_cam_btn.onclick = function(){
         dash_on = false;
         document.getElementById("text_change").innerHTML = "Download Data";             // Change from "Display Data" -> "Download Data"
         document.getElementById("dl_icon").src = "./assets/icons/download_icon.png";    // Change icon
+
+        // Reset chart information
+        reset_chart();
     });
 
     // When mouse is clicked: Function for calculating pointer position, raycasting information...
@@ -372,7 +375,7 @@ rst_cam_btn.onclick = function(){
                     document.getElementById("smart-plug-2-id").innerHTML = '#'+ smart_plug_2_ids[tableNumber-1];
                     
                     current_table = tableNumber;
-                    update_sensors(tableNumber)                                             // Initial update for a table
+                    update_sensors(tableNumber);                                            // Initial update for a table
                     dashboard_data = setInterval(() => update_sensors(tableNumber), 10000); // Update every 10s for a table
                 }
             } 
@@ -515,7 +518,7 @@ const smart_plug_2_ids = [
 // To add: Update ALL tables in this one function
 function table_update() {
     msr_2_ids.forEach((id, index) => {
-        fetch(ip + `/msr-2/${id}`, { headers: { accept: '/' } })    // IP address to change
+        fetch(ip + `/msr-2/${id}`, { headers: { accept: '/'} })    // IP address to change
             .then(res => res.json())
             .then(data => {
                 // Changing the temperature value
@@ -539,7 +542,6 @@ const table_temperature = setInterval(table_update, 10000); // Run function ever
 
 // Function to update data in Dashboard view
 function update_sensors(table_no){
-  
     fetch(ip + `/msr-2/${msr_2_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
             .then(res => res.json())
             .then(data => {
@@ -596,6 +598,7 @@ function update_sensors(table_no){
                 });
                 document.getElementById("smart-plug-2-data").innerHTML = new_data;
             });
+    update_chart();
 }
 
 // [3] Downloading Historical Data from REST API while on Dashboard view
@@ -640,15 +643,15 @@ function show_download_options() {
         document.getElementById("output_data").style.display = 'block';                 // Hide devices and sensor IDs
         document.getElementById("output_data").innerHTML = `
         <h2 style="color: white; font-family:'Segoe UI'">Download Device Historical Data</h2>
-        <div>
+        <div class="input_div">
             <label class="download_label" for="start_time">Start Date and Time:</label>
-            <input type="datetime-local" id="start_time" name="start_time">
+            <input class="date_select" type="datetime-local" id="start_time" name="start_time">
         </div>
-        <div>
+        <div class="input_div">
             <label class="download_label" for="end_time">End Date and Time:</label>
-            <input type="datetime-local" id="end_time" name="end_time">
+            <input class="date_select" type="datetime-local" id="end_time" name="end_time">
         </div>
-        <div style="margin-top: 15px">
+        <div class="input_div">
             <label class="download_label for="select_device">Select Device:</label>
 
             <select name="select_device" id="select_device">
@@ -659,7 +662,7 @@ function show_download_options() {
             </select>
         </div>
         <button style="margin-top: 20px;" id="download_button">Download</button>
-        <p style="color: red; font-weight: bold; opacity: 0; font-family: 'Segoe UI'" id="warning">Please double check your input date(s)</p>
+        <p style="color: red; font-weight: bold; opacity: 0; font-family: 'Segoe UI'" id="warning">Please double check your input date(s).</p>
 
         `;
 
@@ -676,11 +679,17 @@ function download_device_data() {
     let device = document.getElementById("select_device").value;
     console.log(start + end + device);
 
-    if(start == "" || end == "" || end < start){
-        // If input is incorrect or lacking, warn the user and don't do anything
+    if(start == "Invalid Date" || end == "Invalid Date"){
+        // If input is lacking, inform the user and don't do anything
+        document.getElementById("warning").innerHTML = "Please double check your input date(s).";
+        document.getElementById("warning").style.opacity = 0.9;
+    }else if(end < start){
+        // If input makes no sense, warn the user and don't do anything
+        document.getElementById("warning").innerHTML = "End date is before start date.";
         document.getElementById("warning").style.opacity = 0.9;
     }else{
         // If all good, fetch the data (if any)
+        document.getElementById("warning").innerHTML = "Please double check your input date(s).";
         document.getElementById("warning").style.opacity = 0;
 
         let sensor_id;
@@ -697,8 +706,8 @@ function download_device_data() {
         start = encodeURIComponent(start.toISOString());
         end = encodeURIComponent(end.toISOString());
         let query = `time_start=${start}&time_end=${end}`;
-
-        fetch(ip + `/${device}/${sensor_id}?${query}`, { headers: { accept: '/' } })    // IP address to change
+        console.log(ip + `/${device}/${sensor_id}?${query}`);
+        fetch(ip + `/${device}/${sensor_id}?${query}`, { headers: { accept: '/' } })    // GET Historical Data
             .then(res => res.json())
             .then(data => {
                 console.log(data);
@@ -725,7 +734,48 @@ function download_device_data() {
     }
 }
 
+// [4] Displaying data onto graph
 
+// Define chart element
+const ctx = document.getElementById('myChart');
+
+// Define chart properties
+var values = [];
+
+var info = {
+  labels: [],
+  datasets: [{
+    label: 'msr-2 Temperature',
+    data: values,
+    fill: false,
+    borderColor: 'rgb(75, 192, 192)',
+    tension: 0.1
+  }]
+};
+const config = {
+    type: 'line',
+    data: info,
+  };
+
+// Initiate chart
+const chart = new Chart(ctx, config);
+
+function update_chart() {
+    fetch(ip + `/msr-2/${msr_2_ids[current_table-1]}`, { headers: { accept: '/' } })    // IP address to change
+            .then(res => res.json())
+            .then(data => {
+                values.push(data['temperature']);
+                info['labels'].push(data['timestamp']);
+                chart.update();
+            });
+}
+
+function reset_chart() {
+    chart.data.labels = [];
+    values = [];
+    chart.data.datasets[0]['data'] = values;
+    info['datasets'][0]['label'] = 'Temperature';
+}
 
 
 // ---------- RENDERING ----------

@@ -215,7 +215,7 @@ body {
 
 .modal.open { /* for when the dashboard is open */
   opacity: 1;
-  z-index: 999;
+  z-index: 100;
 }
 
 .modal-inner {  /* Just the window inside, dashboard itself */
@@ -396,4 +396,56 @@ body {
   margin-right: 10px;
   text-align: end;
   color: rgb(20, 20, 20);
+}
+
+/* Download Data View */
+.input_div{
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content:space-around;
+  width: 100%; /* Adjust as needed */
+}
+
+.download_label{
+  color: rgba(255, 255, 255, 0.733);
+  margin-left: 30%;
+}
+
+
+.date_select, #select_device {
+  margin-right: 30%;
+  border: none;
+  outline: none;
+  border-radius: 15px;
+  padding: 1em;
+  background-color: #f7f7f7;
+  box-shadow: inset 2px 5px 10px rgba(0,0,0,0.3);
+  transition: 300ms ease-in-out;
+}
+
+#download_button {
+  color: white;
+  background-color: #3a834c;
+  width: 100px;
+  height: 30px;
+  border-radius: 6px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#download_button:hover{
+  cursor: pointer;
+  background-color: #17682b;
+}
+
+/* Chart JS CSS */
+#chart_div {
+  position: fixed;
+  right: 14%;
+  bottom: 17%;
+  width: 35%;
+  height: 35%;
+  background-color: rgba(29, 29, 29, 0.5);
+  border-radius: 4px;
 }
