@@ -390,28 +390,28 @@ rst_cam_btn.onclick = function(){
     // Event listsener for mouse click, sets clicked to True. Otherwise, sets it to false.
     window.addEventListener('click', onMouseClick);
 
-    // Define positions of bulbs
+    // Define positions of light
     const bulb_positions =[
-        [11, 2.42, -5.15],
-        [11, 2.42, -0.22],
-        [11, 2.42, 4.74],
-        [11, 2.42, 9.71],
-        [-1.28, 2.42, -5.15],
-        [-1.28, 2.42, -0.22],
-        [-1.28, 2.42, 4.74],
-        [-1.28, 2.42, 9.71],
-        [-2.05, 2.42, -5.15],
-        [-2.05, 2.42, -0.22],
-        [-2.05, 2.42, 4.74],
-        [-2.05, 2.42, 9.71],
-        [-13.68, 2.42, -5.15],
-        [-13.68, 2.42, -0.22],
-        [-13.68, 2.42, 4.74],
-        [-13.68, 2.42, 9.71]
+        [11, 2.37, -5.15],
+        [11, 2.37, -0.22],
+        [11, 2.37, 4.74],
+        [11, 2.37, 9.71],
+        [-1.28, 2.37, -5.15],
+        [-1.28, 2.37, -0.22],
+        [-1.28, 2.37, 4.74],
+        [-1.28, 2.37, 9.71],
+        [-2.05, 2.37, -5.15],
+        [-2.05, 2.37, -0.22],
+        [-2.05, 2.37, 4.74],
+        [-2.05, 2.37, 9.71],
+        [-13.68, 2.37, -5.15],
+        [-13.68, 2.37, -0.22],
+        [-13.68, 2.37, 4.74],
+        [-13.68, 2.37, 9.71]
     ];
     // Store bulbs/spheres in this array
     const bulbs = [];
-    const bulb_geometry = new THREE.SphereGeometry(0.12,8,6);
+    const bulb_geometry = new THREE.SphereGeometry(0.08,8,6);
 
     // Make bulbs and push into storage array
     bulb_positions.forEach((id, index) => {
@@ -421,6 +421,17 @@ rst_cam_btn.onclick = function(){
         bulb.position.set(...bulb_positions[index]);
         scene.add(bulb);
         bulbs.push(bulb);
+    });
+
+    // Make light sources as well
+    const bulb_lights = [];
+
+    // Make lights and push into storage array
+    bulb_positions.forEach((id, index) => {
+        const ptlight = new THREE.PointLight(new THREE.Color().setRGB( 0.5, 0.5, 0.5 ) , 0.3, 0.5 );
+        ptlight.position.set(...bulb_positions[index]);
+        scene.add( ptlight );
+        bulb_lights.push(ptlight);
     });
 
     
@@ -573,8 +584,9 @@ function table_update() {
                     // Add last updated time in Dashboard view
                     document.getElementById("last_update").innerHTML = time_update;
                 }
-                // Update MSR-2 Lights (Bulbs) 3D Models here as well
+                // Update MSR-2 Lights/Bulbs here as well
                 bulbs[index].material.color.set(data['r'], data['g'], data['b']);
+                bulb_lights[index].color.set(data['r'], data['g'], data['b']);
             })
             .catch(error => console.error(`Error fetching sensor ${id}:`, error));
         });
