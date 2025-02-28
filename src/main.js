@@ -60,17 +60,17 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.maxPolarAngle = Math.PI/2 -0.1;
 controls.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;
-// controls.mouseButtons.LEFT = THREE.MOUSE.PAN; // Turn on if want panning
-controls.mouseButtons.LEFT = null;
+ controls.mouseButtons.LEFT = THREE.MOUSE.PAN; // Turn on if want panning
+//controls.mouseButtons.LEFT = null;
 
 // [2] Creating ambient light
-const ambient = new THREE.AmbientLight(0xffffff, 1);
+const ambient = new THREE.AmbientLight(0xffffff, 0.6);
 ambient.castShadow = false;
 scene.add(ambient);
 
 // [3] Adding directional light
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(-10,50,20);
+const light = new THREE.DirectionalLight(0xe2e2e2, 1);
+light.position.set(-10,50,-20);
 // Setting bounds of the directional light
 light.shadow.mapSize.width = 1024;
 light.shadow.mapSize.height = 1024;
@@ -91,7 +91,8 @@ scene.add(light);
 const groundGeometry = new THREE.PlaneGeometry(1000,1000,1,1);
 groundGeometry.rotateX(-Math.PI /2);
 const groundMaterial = new THREE.MeshStandardMaterial({
-    color:  0xa1edf7,
+    // color:  0xa1edf7,
+    color: 0x1a1a1a,
     side: THREE.DoubleSide
 });
 groundMaterial.metalness = 0.8;
@@ -135,11 +136,15 @@ loader.load('smart_ilab_3d/scene.gltf', (gltf) => {
 });
 
 // Loading skybox
+/*
 loader.load('skybox/scene.gltf', (gltf) => {
     const sky = gltf.scene;
     scene.add(sky);
 });
+*/
 
+// Adding color to background
+scene.background = new THREE.Color( 0x101010 );
 
 
 
@@ -181,7 +186,7 @@ rst_cam_btn.onclick = function(){
     table_geometry.rotateX(Math.PI/2);
     // table_material sets the table color
     const table_material = new THREE.MeshStandardMaterial({
-        color:  0xe8fcff,
+        color:  0x859397,
         side: THREE.DoubleSide
     });
     table_material.roughness = 0.6;
@@ -376,7 +381,7 @@ rst_cam_btn.onclick = function(){
                     
                     current_table = tableNumber;
                     update_sensors(tableNumber);                                            // Initial update for a table
-                    dashboard_data = setInterval(() => update_sensors(tableNumber), 10000); // Update every 10s for a table
+                    dashboard_data = setInterval(() => update_sensors(tableNumber), 5000); // Update every 5s for a table
                 }
             } 
              
@@ -384,6 +389,41 @@ rst_cam_btn.onclick = function(){
 
     // Event listsener for mouse click, sets clicked to True. Otherwise, sets it to false.
     window.addEventListener('click', onMouseClick);
+
+    // Define positions of bulbs
+    const bulb_positions =[
+        [11, 2.42, -5.15],
+        [11, 2.42, -0.22],
+        [11, 2.42, 4.74],
+        [11, 2.42, 9.71],
+        [-1.28, 2.42, -5.15],
+        [-1.28, 2.42, -0.22],
+        [-1.28, 2.42, 4.74],
+        [-1.28, 2.42, 9.71],
+        [-2.05, 2.42, -5.15],
+        [-2.05, 2.42, -0.22],
+        [-2.05, 2.42, 4.74],
+        [-2.05, 2.42, 9.71],
+        [-13.68, 2.42, -5.15],
+        [-13.68, 2.42, -0.22],
+        [-13.68, 2.42, 4.74],
+        [-13.68, 2.42, 9.71]
+    ];
+    // Store bulbs/spheres in this array
+    const bulbs = [];
+    const bulb_geometry = new THREE.SphereGeometry(0.12,8,6);
+
+    // Make bulbs and push into storage array
+    bulb_positions.forEach((id, index) => {
+        const bulb = new THREE.Mesh(bulb_geometry,  new THREE.MeshStandardMaterial({
+            color:  0x000000,
+        }));
+        bulb.position.set(...bulb_positions[index]);
+        scene.add(bulb);
+        bulbs.push(bulb);
+    });
+
+    
 
 
 
@@ -515,6 +555,8 @@ const smart_plug_2_ids = [
     '9d893e'
 ];
 
+
+
 // To add: Update ALL tables in this one function
 function table_update() {
     msr_2_ids.forEach((id, index) => {
@@ -523,7 +565,7 @@ function table_update() {
             .then(data => {
                 // Changing the temperature value
                 if (temp_labels[index]) {
-                    temp_labels[index].textContent = `${(data['temperature']).toFixed(2)}°C`; // REMOVE Math.random()
+                    temp_labels[index].textContent = `${(data['temperature']).toFixed(2)}°C`;
                 }
                 // REMOVE THIS FOR LAST UPDATED TIME -- DASHBOARD HEADER
                 if (id == 'cc0b5c') {
@@ -531,14 +573,15 @@ function table_update() {
                     // Add last updated time in Dashboard view
                     document.getElementById("last_update").innerHTML = time_update;
                 }
+                // Update MSR-2 Lights (Bulbs) 3D Models here as well
+                bulbs[index].material.color.set(data['r'], data['g'], data['b']);
             })
             .catch(error => console.error(`Error fetching sensor ${id}:`, error));
-            // To add: Changing color based on temperature value
         });
-}
+    }
 
 table_update();
-const table_temperature = setInterval(table_update, 10000); // Run function every 10000ms (10s)
+const table_temperature = setInterval(table_update, 1000); // Run function every 1000ms (1s)
 
 // Function to update data in Dashboard view
 function update_sensors(table_no){
@@ -633,6 +676,7 @@ function show_download_options() {
         document.getElementById("output_data").style.display = 'flex';                  // Hide devices and sensor IDs
         document.getElementById("text_change").innerHTML = "Download Data";             // Change from "Display Data" -> "Download Data"
         document.getElementById("dl_icon").src = "./assets/icons/download_icon.png";    // Change icon
+        document.getElementById("chart_div").style.opacity = '1';                       // Show Chart
     }else{
         // Switch to download data view
         clearInterval(dashboard_data);
@@ -668,6 +712,8 @@ function show_download_options() {
 
         let download_button = document.getElementById("download_button");
         download_button.addEventListener("click", () => download_device_data());
+
+        document.getElementById("chart_div").style.opacity = '0';                 // Hide Chart
     }
     dash_on = !dash_on;
 }
@@ -677,7 +723,7 @@ function download_device_data() {
     let start = new Date(document.getElementById("start_time").value);
     let end = new Date(document.getElementById("end_time").value);
     let device = document.getElementById("select_device").value;
-    console.log(start + end + device);
+    // console.log(start + end + device);
 
     if(start == "Invalid Date" || end == "Invalid Date"){
         // If input is lacking, inform the user and don't do anything
@@ -764,9 +810,11 @@ function update_chart() {
     fetch(ip + `/msr-2/${msr_2_ids[current_table-1]}`, { headers: { accept: '/' } })    // IP address to change
             .then(res => res.json())
             .then(data => {
-                values.push(data['temperature']);
-                info['labels'].push(data['timestamp']);
-                chart.update();
+                if (info['labels'].at(-1) !== data['timestamp']) {
+                    values.push(data['temperature']);
+                    info['labels'].push(data['timestamp']);
+                    chart.update();
+                }
             });
 }
 
