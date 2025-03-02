@@ -580,13 +580,27 @@ function table_update() {
                 }
                 // REMOVE THIS FOR LAST UPDATED TIME -- DASHBOARD HEADER
                 if (id == 'cc0b5c') {
-                    time_update = `Server last updated: ${data['timestamp']}`;
+                    let new_time = new Date(data['timestamp']);
+                    time_update = `Server last updated: ${new_time}`;
                     // Add last updated time in Dashboard view
                     document.getElementById("last_update").innerHTML = time_update;
                 }
                 // Update MSR-2 Lights/Bulbs here as well
-                bulbs[index].material.color.set(data['r'], data['g'], data['b']);
-                bulb_lights[index].color.set(data['r'], data['g'], data['b']);
+
+                // If light state is OFF
+                if(data['state'] == false) {
+                    // Turn the bulb model OFF
+                    bulbs[index].material.color.set(0.5,0.5,0.5);
+                    bulb_lights[index].color.set(0,0,0);
+                } else {
+                    // Set colors
+                    bulbs[index].material.color.set(data['r'], data['g'], data['b']);
+                    bulb_lights[index].color.set(data['r'], data['g'], data['b']);
+
+                    // Set brightness
+                    bulb_lights[index].power = data['brightness'];
+                }
+
             })
             .catch(error => console.error(`Error fetching sensor ${id}:`, error));
         });
@@ -602,12 +616,22 @@ function update_sensors(table_no){
             .then(data => {
                 let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
                 let new_data = "";                      // Store new data to be shown as HTML
+                
                 keys.forEach((id, index) => {           // For each parameter, careful with changing this
-                    new_data = new_data + 
-                    `<div class="key-value">
-                    <p class="key">${keys[index]}</p>
-                    <p class="value">${data[keys[index]]}</p>
-                    </div>`;
+                    if (keys[index] == 'timestamp') {
+                        let time = new Date(data[keys[index]]);
+                        new_data = new_data + 
+                        `<div class="key-value">
+                        <p class="key">${keys[index]}</p>
+                        <p class="value">${time.toUTCString()}</p>
+                        </div>`;
+                    } else {
+                        new_data = new_data + 
+                        `<div class="key-value">
+                        <p class="key">${keys[index]}</p>
+                        <p class="value">${data[keys[index]]}</p>
+                        </div>`;
+                    }
                 });
                 document.getElementById("msr-2-data").innerHTML = new_data;
             });
@@ -617,11 +641,20 @@ function update_sensors(table_no){
                 let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
                 let new_data = "";                      // Store new data to be shown as HTML
                 keys.forEach((id, index) => {           // For each parameter, careful with changing this
-                    new_data = new_data + 
-                    `<div class="key-value">
-                    <p class="key">${keys[index]}</p>
-                    <p class="value">${data[keys[index]]}</p>
-                    </div>`;
+                    if (keys[index] == 'timestamp') {
+                        let time = new Date(data[keys[index]]);
+                        new_data = new_data + 
+                        `<div class="key-value">
+                        <p class="key">${keys[index]}</p>
+                        <p class="value">${time.toUTCString()}</p>
+                        </div>`;
+                    } else {
+                        new_data = new_data + 
+                        `<div class="key-value">
+                        <p class="key">${keys[index]}</p>
+                        <p class="value">${data[keys[index]]}</p>
+                        </div>`;
+                    }
                 });
                 document.getElementById("air-1-data").innerHTML = new_data;
             });
@@ -631,11 +664,20 @@ function update_sensors(table_no){
                 let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
                 let new_data = "";                      // Store new data to be shown as HTML
                 keys.forEach((id, index) => {           // For each parameter, careful with changing this
-                    new_data = new_data + 
-                    `<div class="key-value">
-                    <p class="key">${keys[index]}</p>
-                    <p class="value">${data[keys[index]]}</p>
-                    </div>`;
+                    if (keys[index] == 'timestamp') {
+                        let time = new Date(data[keys[index]]);
+                        new_data = new_data + 
+                        `<div class="key-value">
+                        <p class="key">${keys[index]}</p>
+                        <p class="value">${time.toUTCString()}</p>
+                        </div>`;
+                    } else {
+                        new_data = new_data + 
+                        `<div class="key-value">
+                        <p class="key">${keys[index]}</p>
+                        <p class="value">${data[keys[index]]}</p>
+                        </div>`;
+                    }
                 });
                 document.getElementById("smart-plug-1-data").innerHTML = new_data;
             });
@@ -645,11 +687,20 @@ function update_sensors(table_no){
                 let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
                 let new_data = "";                      // Store new data to be shown as HTML
                 keys.forEach((id, index) => {           // For each parameter, careful with changing this
-                    new_data = new_data + 
-                    `<div class="key-value">
-                    <p class="key">${keys[index]}</p>
-                    <p class="value">${data[keys[index]]}</p>
-                    </div>`;
+                    if (keys[index] == 'timestamp') {
+                        let time = new Date(data[keys[index]]);
+                        new_data = new_data + 
+                        `<div class="key-value">
+                        <p class="key">${keys[index]}</p>
+                        <p class="value">${time.toUTCString()}</p>
+                        </div>`;
+                    } else {
+                        new_data = new_data + 
+                        `<div class="key-value">
+                        <p class="key">${keys[index]}</p>
+                        <p class="value">${data[keys[index]]}</p>
+                        </div>`;
+                    }
                 });
                 document.getElementById("smart-plug-2-data").innerHTML = new_data;
             });
