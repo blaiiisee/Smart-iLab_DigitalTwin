@@ -2,7 +2,7 @@
 // npm install three
 // npm install gsap
 
-const ip = "http://192.168.1.8:80"; // IP of REST API
+const ip = "http://10.158.66.30:80"; // IP of REST API
 
 
 
@@ -104,6 +104,7 @@ scene.add(groundMesh);
 
 // [4] Adding my gltf scenes
 const loader = new GLTFLoader().setPath('../assets/');
+
 loader.load('shiba/scene.gltf', (gltf) => {
     const dog_mesh = gltf.scene;
 
@@ -118,7 +119,6 @@ loader.load('shiba/scene.gltf', (gltf) => {
     dog_mesh.scale.set(1,1,1);
     scene.add(dog_mesh);
 });
-
 // Loading Smart I-Lab
 loader.load('smart_ilab_3d/scene.gltf', (gltf) => {
     const lab = gltf.scene;
@@ -144,7 +144,7 @@ loader.load('skybox/scene.gltf', (gltf) => {
 */
 
 // Adding color to background
-scene.background = new THREE.Color( 0x101010 );
+scene.background = new THREE.Color( 0x1a1a1a);
 
 
 
@@ -211,6 +211,8 @@ rst_cam_btn.onclick = function(){
         [-12.48, 2.305, 10.21]
     ];
     
+    const tables = [];
+
     // Create a plane for each table top
     table_positions.forEach((pos, index) => {
         const table = new THREE.Mesh(table_geometry, table_material);
@@ -219,6 +221,7 @@ rst_cam_btn.onclick = function(){
         table.name = `Table${index + 1}`;
         scene.add(table);
         table.position.set(...pos);
+        tables.push(table);
     });
 
     // [2.2] OutlinePass creation for outlines when hovering over interactable objects
@@ -251,7 +254,7 @@ rst_cam_btn.onclick = function(){
 
             // calculate pointer position in normalized device coordinates
             // [-1 to +1] for both components
-            pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+            pointer.x = (event.clientX / window.innerWidth)  * 2 - 1;
             pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
             raycaster.setFromCamera(pointer, camera);
@@ -566,9 +569,19 @@ const smart_plug_2_ids = [
     '9d893e'
 ];
 
+const spotLight = new THREE.SpotLight( 0xffffff );
+spotLight.position.set(table_positions[0][0],7,table_positions[0][2]);
+spotLight.target = tables[0];
+spotLight.angle =  Math.PI/7;
+spotLight.intensity = 50;
+spotLight.castShadow = true;
+spotLight.penumbra = 0.2;
+scene.add( spotLight );
 
+const spotLightHelper = new THREE.SpotLightHelper( spotLight );
+scene.add( spotLightHelper );
 
-// To add: Update ALL tables in this one function
+// To add: Update ALL table MODELS in this one function
 function table_update() {
     msr_2_ids.forEach((id, index) => {
         fetch(ip + `/msr-2/${id}`, { headers: { accept: '/'} })    // IP address to change
@@ -601,6 +614,7 @@ function table_update() {
                     bulb_lights[index].power = data['brightness'];
                 }
 
+                // Update Zigbee2MQTT Lights here as well (spotlight)
             })
             .catch(error => console.error(`Error fetching sensor ${id}:`, error));
         });
