@@ -569,22 +569,10 @@ const smart_plug_2_ids = [
     '9d893e'
 ];
 
-const spotLight = new THREE.SpotLight( 0xffffff );
-spotLight.position.set(table_positions[0][0],7,table_positions[0][2]);
-spotLight.target = tables[0];
-spotLight.angle =  Math.PI/7;
-spotLight.intensity = 50;
-spotLight.castShadow = true;
-spotLight.penumbra = 0.2;
-scene.add( spotLight );
-
-const spotLightHelper = new THREE.SpotLightHelper( spotLight );
-scene.add( spotLightHelper );
-
-// To add: Update ALL table MODELS in this one function
-function table_update() {
+// To add: Update ALL table's MSR-2 Live Temperature and LED State
+function msr2_table_update() {
     msr_2_ids.forEach((id, index) => {
-        fetch(ip + `/msr-2/${id}`, { headers: { accept: '/'} })    // IP address to change
+        fetch(ip + `/msr-2/${id}`, { headers: { accept: '/'} })
             .then(res => res.json())
             .then(data => {
                 // Changing the temperature value
@@ -613,15 +601,60 @@ function table_update() {
                     // Set brightness
                     bulb_lights[index].power = data['brightness'];
                 }
-
-                // Update Zigbee2MQTT Lights here as well (spotlight)
             })
             .catch(error => console.error(`Error fetching sensor ${id}:`, error));
         });
+        // Call the function to update Zigbee2MQTT Lights here (spotlight)
+        zigbeelights_update();
     }
 
-table_update();
-const table_temperature = setInterval(table_update, 1000); // Run function every 1000ms (1s)
+msr2_table_update();
+const table_temperature = setInterval(msr2_table_update, 1000); // Run function every 1000ms (1s)
+
+// Creation of spotLights and storing them to an array
+const spotLights = [];
+
+table_positions.forEach((id, index) => {
+    const spotLight = new THREE.SpotLight( 0xffffff );
+    spotLight.position.set(table_positions[index][0],7,table_positions[index][2]);
+    spotLight.target = tables[index];
+    spotLight.angle =  Math.PI/7;
+    spotLight.intensity = 50;
+    spotLight.castShadow = false;
+    spotLight.penumbra = 0.2;
+    scene.add( spotLight );
+    spotLights.push(spotLight);    
+  });
+
+// Functions to convert RGB to hexcode
+  const componentToHex = (c) => {
+    const hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+  }
+  
+  const rgbToHex = (r, g, b) => {
+    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+  }
+
+// Function to update Zigbee Light per table/workstation
+function zigbeelights_update() {
+    for (let i = 1; i < 17; i++) {
+        fetch(ip + `/zigbee2mqtt/table_${i}/get`, { headers: { accept: '/'} })
+            .then(res => res.json())
+            .then(data => {
+                if(data['state']=="OFF"){
+                    spotLights[i-1].intensity = 0;
+                } else{
+                    spotLights[i-1].intensity = data['brightness']/2;
+                    let g = Math.floor(-0.3*(data['color_temp']-153) + 255);
+                    let b = Math.floor(-0.6*(data['color_temp']-153) + 255);
+                    spotLights[i-1].color.set(rgbToHex(255,g,b));
+                }
+
+            })
+            .catch(error => console.error(`Error fetching Zigbee Light table_${i}:`, error));
+      }
+}
 
 // Function to update data in Dashboard view
 function update_sensors(table_no){
