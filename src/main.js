@@ -11,23 +11,23 @@ const ip = "http://10.158.66.30:80"; // IP of REST API
 // [0] Import Modules
 
 // ThreeJS for 3D Scenes Support
-import * as THREE from 'three';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js';
 // OrbitControls for 3D Camera Controls
-import { OrbitControls } from "jsm/controls/OrbitControls.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/controls/OrbitControls.js";
 // GLTFLoader for .gltf file-loading
-import { GLTFLoader } from "jsm/loaders/GLTFLoader.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/loaders/GLTFLoader.js";
 // OutlinePass for outlines
-import { OutlinePass } from 'jsm/postprocessing/OutlinePass.js';
+import { OutlinePass } from 'https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/postprocessing/OutlinePass.js';
 // EffectComposer for OutlinePass support?
-import { EffectComposer } from 'jsm/postprocessing/EffectComposer.js';
+import { EffectComposer } from 'https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/postprocessing/EffectComposer.js';
 // RenderPass for OutlinePass support?
-import { RenderPass } from 'jsm/postprocessing/RenderPass.js';
+import { RenderPass } from 'https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/postprocessing/RenderPass.js';
 // ShaderPass for shadow correction in tandem with GammaCorrectionShader
-import { ShaderPass } from 'jsm/postprocessing/ShaderPass.js';
+import { ShaderPass } from 'https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/postprocessing/ShaderPass.js';
 // Gamma correction because Effect Composer makes scene darker
-import { GammaCorrectionShader } from 'jsm/shaders/GammaCorrectionShader.js';
+import { GammaCorrectionShader } from 'https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/shaders/GammaCorrectionShader.js';
 // CSS2D for HTML Position Projection 
-import { CSS2DRenderer, CSS2DObject } from 'jsm/renderers/CSS2DRenderer.js';
+import { CSS2DRenderer, CSS2DObject } from 'https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/renderers/CSS2DRenderer.js';
 // Chart.js for data visualization -- graphical representation
 //import { Chart } from './node_modules/chart.js/auto/auto.js';
 
@@ -70,7 +70,7 @@ scene.add(ambient);
 
 // [3] Adding directional light
 const light = new THREE.DirectionalLight(0xe2e2e2, 1);
-light.position.set(-10,50,-20);
+light.position.set(10,50,20);
 // Setting bounds of the directional light
 light.shadow.mapSize.width = 1024;
 light.shadow.mapSize.height = 1024;
@@ -218,7 +218,7 @@ rst_cam_btn.onclick = function(){
         const table = new THREE.Mesh(table_geometry, table_material);
         table.castShadow = false;
         table.receiveShadow = true;
-        table.name = `Table${index + 1}`;
+        table.name = `Table${index + 1}_InputModel`;
         scene.add(table);
         table.position.set(...pos);
         tables.push(table);
@@ -258,7 +258,9 @@ rst_cam_btn.onclick = function(){
             pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
             raycaster.setFromCamera(pointer, camera);
-            const intersects = raycaster.intersectObjects(scene.children.filter(child => child.name.includes("Table")), false); // false -> non-recursive, better performance
+            const intersects = raycaster.intersectObjects(scene.children.filter(child => child.name.includes("InputModel")), false); // false -> non-recursive, better performance
+            // Reset AG1 Label
+            air_gradient_one_label.style.opacity = '0%'; // Hide label
             
             // If there are intersected objects with the ray...
             if (intersects.length > 0) {
@@ -269,7 +271,11 @@ rst_cam_btn.onclick = function(){
                 if (top_object.name.includes("Table")){ // If the object at the top is a "Table" identified via object.name as defined here in code
                     document.getElementById("the_body").style.cursor = "pointer";
                     outlinePass.selectedObjects = [top_object];
-                }           
+                } else if (top_object.name.includes("AirGradientOne")) { // If the object at the top is a "AirGradientOne" identified via object.name as defined here in code
+                    document.getElementById("the_body").style.cursor = "pointer";
+                    outlinePass.selectedObjects = [top_object];
+                    air_gradient_one_label.style.opacity = '70%'; // Show label
+                }
             } else {
                 outlinePass.selectedObjects = [];
                 document.getElementById("the_body").style.cursor = "default";
@@ -437,7 +443,15 @@ rst_cam_btn.onclick = function(){
         bulb_lights.push(ptlight);
     });
 
-    
+    // Adding 3D Model of Air Gradient One
+    const geometry = new THREE.BoxGeometry( 0.2, 0.5, 0.5); 
+    const material = new THREE.MeshStandardMaterial( { color: 0xc8c09e } );
+    const cube = new THREE.Mesh( geometry, material ); 
+    cube.position.set(-14.7, 2, -10);
+    cube.castShadow = true;
+    cube.receiveShadow = true;
+    cube.name = "AirGradientOne_InputModel";
+    scene.add( cube );
 
 
 
@@ -458,7 +472,7 @@ rst_cam_btn.onclick = function(){
     labelRenderer.domElement.style.pointerEvents = 'none';  // Do not capture mouse events
     document.body.appendChild( labelRenderer.domElement );
 
-// Creation of HTML Objects that will be placed as labels on 3D space
+// Creation of HTML Objects that will be placed as MSR-2 Temperature labels on 3D space
     const temp_labels = [];
 
     table_positions.forEach((pos) => {
@@ -477,13 +491,48 @@ rst_cam_btn.onclick = function(){
     const temp_checkbox = document.getElementById("temp_checkbox");
 
     function checkbox()  {
-        let opacityValue = temp_checkbox.checked ? '75%' : '0%';    // true : false
+        let msr2_opacityValue = temp_checkbox.checked ? '75%' : '0%';    // true : false
+        let sensibo_opacityValue = temp_checkbox.checked ? '50%' : '0%';    // true : false
 
         for (let i = 0; i < 16; i++) {
-            temp_labels[i].style.opacity = opacityValue;
+            temp_labels[i].style.opacity = msr2_opacityValue;
+        }
+        for (let i = 0; i < 4; i++) {
+            sensibo_labels[i].style.opacity = sensibo_opacityValue;
         }
     }
-    
+
+// Creation of HTML Objects that will be placed as Sensibo State Labels
+    const sensibo_positions = [
+        [3.5, 7.7, -15.2],  // front-right
+        [-7, 7.7, -15.2], // front-left
+        [-7, 7.7, 14.8],    // back-left
+        [3.5, 7.7, 14.8]      // back-right
+
+    ]
+    const sensibo_labels = [];
+
+    sensibo_positions.forEach((pos) => {
+        let sensiboElement = document.createElement('p');
+        sensiboElement.textContent = "Loading..."; // Placeholder for REST API data
+        sensiboElement.className = "sensibo_label";  // Apply styling based on temperature
+
+        let tempLabel = new CSS2DObject(sensiboElement);
+        scene.add(tempLabel);
+        tempLabel.position.set(...pos);
+
+        sensibo_labels.push(sensiboElement); // Store references for later updates
+    });
+
+// Creation of HTML Object that will be placed as Air Gradient One label
+    const air_gradient_one_label = document.createElement('p');
+    air_gradient_one_label.innerHTML = "Loading AG1..."; // Placeholder for REST API data
+    air_gradient_one_label.className = "AG1_label";  // Apply styling based on temperature
+
+    let airGradientOneLabel = new CSS2DObject(air_gradient_one_label);
+    scene.add(airGradientOneLabel);
+    airGradientOneLabel.position.set(-14.7, 2.5, -12);
+    air_gradient_one_label.style.opacity = '0%'; // Initially hidden
     
 
 // [2] Getting Information from REST API
@@ -655,6 +704,72 @@ function zigbeelights_update() {
             .catch(error => console.error(`Error fetching Zigbee Light table_${i}:`, error));
       }
 }
+
+
+// Get and store all available Sensibo Air Pro IDs
+const sensibo_ids = [];
+
+fetch(ip + '/sensibo', { headers: { accept: '/' } })
+    .then(res => res.json())
+    .then(data => {
+        sensibo_ids.push(data[0]);
+        sensibo_ids.push(data[1]);
+        sensibo_ids.push(data[2]);
+        sensibo_ids.push(data[3]);
+        sensibo_update();
+    })
+    .catch(error => console.error(`Error fetching Sensibo IDs:`, error));
+
+const sensibo_state = setInterval(sensibo_update, 5000); // Run function every 5000ms (5s)
+
+// Function to update sensibo labels
+function sensibo_update() {
+    for (let i = 0; i < 4; i++) {
+        fetch(ip + `/sensibo/${sensibo_ids[i]}`, { headers: { accept: '/' } })
+            .then(res => res.json())
+            .then(data => {
+                sensibo_labels[i].textContent = `${data['temperature'].toFixed(1)} °C`;
+
+                if (data['hvac_mode'] != 'cool') {
+                    sensibo_labels[i].style.color = 'darkred';
+                    sensibo_labels[i].style.borderColor = 'darkred';
+                }
+            })
+            .catch(error => console.error(`Error fetching Sensibo ${i}:`, error));
+    }
+}
+
+// Get and store available Air Gradient One ID
+var air_gradient_one_id;
+
+fetch(ip + '/ag-one', { headers: { accept: '/' } })
+    .then(res => res.json())
+    .then(data => {
+        air_gradient_one_id = data[0];
+        air_gradient_one_update();
+    })
+    .catch(error => console.error(`Error fetching Air Gradient One ID:`, error));
+
+// Function to update Air Gradient One label
+function air_gradient_one_update() {
+    fetch(ip + `/ag-one/${air_gradient_one_id}`, { headers: { accept: '/' } })
+        .then(res => res.json())
+        .then(data => {
+            air_gradient_one_label.innerHTML =    
+                `${data['timestamp']} <br>
+                CO2: ${data['co2'].toFixed(1)} <br>
+                Temp: ${data['temperature'].toFixed(1)} <br>
+                Humidity: ${data['humidity'].toFixed(1)} <br>
+                NOX: ${data['nox'].toFixed(1)} <br>
+                VOC: ${data['voc'].toFixed(1)} <br>
+                PM0.3: ${data['pm_0_3'].toFixed(1)}`;
+                
+        })
+        .catch(error => console.error(`Error fetching Air Gradient One:`, error));
+}
+
+const ag1_state = setInterval(air_gradient_one_update, 5000); // Run function every 5000ms (5s)
+
 
 // Function to update data in Dashboard view
 function update_sensors(table_no){
@@ -901,7 +1016,7 @@ var values = [];
 var info = {
   labels: [],
   datasets: [{
-    label: 'msr-2 Temperature',
+    label: 'msr-2 Temperature (°C)',
     data: values,
     fill: false,
     borderColor: 'rgb(75, 192, 192)',

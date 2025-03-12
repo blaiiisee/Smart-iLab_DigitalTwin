@@ -111,6 +111,31 @@ body {
   box-shadow: 0px 0px;
 }
 
+.sensibo_label {
+  font-family: Lexend;
+  font-size: xx-small;
+  color: #84c7d3;
+  background-color: #f8f8fd;
+  padding: 0.4em 0.8em;
+  border-radius: 50em;
+  border: 3px solid #5cb5c5;
+  box-shadow: 0px 0px;
+  opacity: 50%;
+}
+
+.AG1_label {
+  font-family: Lexend;
+  font-size: xx-small;
+  color: #202020;
+  background-color: #f8f8fd;
+  padding: 0.4em 0.8em;
+  border-radius: 2em;
+  border: 3px solid #494949;
+  box-shadow: 0px 0px;
+  opacity: 50%;
+  text-align: center;
+}
+
 /* Checkbox Styling */
 /* From Uiverse.io by WhiteNervosa */ 
 .customCheckBoxHolder {
@@ -147,7 +172,7 @@ body {
 }
 
 .customCheckBox .inner {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 900;
   pointer-events: none;
   transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -443,7 +468,7 @@ body {
 #chart_div {
   position: fixed;
   right: 14%;
-  bottom: 17%;
+  bottom: 15%;
   width: 35%;
   height: 35%;
   background-color: rgba(29, 29, 29, 0.5);
