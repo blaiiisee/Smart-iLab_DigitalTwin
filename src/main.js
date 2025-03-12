@@ -773,16 +773,16 @@ function sensibo_update() {
             .then(res => res.json())
             .then(data => {
                 sensibo_labels[i].textContent = `${data['temperature'].toFixed(1)} °C`;
-
+                
                 if (data['hvac_mode'] == 'heat') {
                     sensibo_labels[i].style.color = 'darkred';
                     sensibo_labels[i].style.borderColor = 'darkred';
                 } else if (data['hvac_mode'] == 'cool'){
-                    sensibo_labels[i].style.color = 0x84c7d3;
-                    sensibo_labels[i].style.borderColor = 0x5cb5c5;
+                    sensibo_labels[i].style.color = '#84c7d3';
+                    sensibo_labels[i].style.borderColor = '#5cb5c5';
                 } else {
-                    sensibo_labels[i].style.color = 0x202020;
-                    sensibo_labels[i].style.borderColor = 0x494949;
+                    sensibo_labels[i].style.color = '#202020';
+                    sensibo_labels[i].style.borderColor = '#494949';
                 }
             })
             .catch(error => console.error(`Error fetching Sensibo ${i}:`, error));
