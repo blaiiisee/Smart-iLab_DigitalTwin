@@ -467,6 +467,37 @@ rst_cam_btn.onclick = function(){
         }
     });
 
+    // [3.1] Check if ALL lights are ON/OFF and adjust the checkbox accordingly
+    const zigbeelights_ids = [];
+
+    function check_lights() {
+        let all_on = true;
+        let all_off = true;
+        fetch(ip + '/groups/All%20Table%20Lights', { headers: { accept: '/' } })
+            .then(res => res.json())
+            .then(data => {
+                // Check state of each light
+                for (let i = 1; i < 17; i++) {
+                    if (data[`zigbee2mqtt_table_${i}`]['state'] == 'ON') {
+                        all_off = false;
+                    } else {
+                        all_on = false;
+                    }
+                }
+
+                if (all_on) {
+                    light_switch.checked = true;
+                } else if (all_off) {
+                    light_switch.checked = false;
+                }
+                
+            })
+            .catch(error => console.error(`Error fetching Zigbee Lights Group Data`, error));
+    
+    }
+
+    check_lights();
+    const light_check = setInterval(check_lights, 2000); // Run function every 1000ms (1s)
 
 
 
