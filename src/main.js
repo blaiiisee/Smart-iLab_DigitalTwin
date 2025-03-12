@@ -105,6 +105,7 @@ scene.add(groundMesh);
 // [4] Adding my gltf scenes
 const loader = new GLTFLoader().setPath('../assets/');
 
+// Loading Shiba Inu
 loader.load('shiba/scene.gltf', (gltf) => {
     const dog_mesh = gltf.scene;
 
@@ -547,10 +548,10 @@ rst_cam_btn.onclick = function(){
 
 // Creation of HTML Objects that will be placed as Sensibo State Labels
     const sensibo_positions = [
-        [3.5, 7.7, -15.2],  // front-right
-        [-7, 7.7, -15.2], // front-left
         [-7, 7.7, 14.8],    // back-left
-        [3.5, 7.7, 14.8]      // back-right
+        [3.5, 7.7, 14.8],    // back-right
+        [-7, 7.7, -15.2],   // front-left
+        [3.5, 7.7, -15.2]  // front-right
 
     ]
     const sensibo_labels = [];
