@@ -453,7 +453,19 @@ rst_cam_btn.onclick = function(){
     cube.name = "AirGradientOne_InputModel";
     scene.add( cube );
 
+// [3] Turn on and off ALL the Lights
+    const light_switch = document.getElementById("light_switch");
+    light_switch.addEventListener("click", () => {
 
+        // Fetch depends on light_switch state
+        if (light_switch.checked) {
+            fetch(ip + '/zigbee2mqtt/tables/set?state=ON&brightness=60&color_temperature=153', { method: 'POST' })
+                .catch(error => console.error(`Error fetching tables/set:`, error));
+        } else {
+            fetch(ip + '/zigbee2mqtt/tables/set?state=OFF&brightness=60&color_temperature=153', { method: 'POST' })
+                .catch(error => console.error(`Error fetching tables/set:`, error));
+        }
+    });
 
 
 
