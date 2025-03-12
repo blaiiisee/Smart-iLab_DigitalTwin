@@ -776,6 +776,9 @@ function sensibo_update() {
                 if (data['hvac_mode'] != 'cool') {
                     sensibo_labels[i].style.color = 'darkred';
                     sensibo_labels[i].style.borderColor = 'darkred';
+                } else {
+                    sensibo_labels[i].style.color = 0x84c7d3;
+                    sensibo_labels[i].style.borderColor = 0x5cb5c5;
                 }
             })
             .catch(error => console.error(`Error fetching Sensibo ${i}:`, error));
