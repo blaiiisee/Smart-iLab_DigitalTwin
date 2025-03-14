@@ -60,7 +60,7 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.maxPolarAngle = Math.PI/2 -0.1;
 controls.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;
- controls.mouseButtons.LEFT = THREE.MOUSE.PAN; // Turn on if want panning
+controls.mouseButtons.LEFT = THREE.MOUSE.PAN; // Turn on if want panning
 //controls.mouseButtons.LEFT = null;
 
 // [2] Creating ambient light
@@ -180,7 +180,7 @@ rst_cam_btn.onclick = function(){
 };
 
 // [2] Table Selection 
-    // [2.1] Plane and Wireframe Generation for each table (for object detection)
+    // [2.1] Plane and Wireframe Generation for each table and aircon (for object detection)
 
     // table_geometry sets the table dimensions and orientation
     const table_geometry = new THREE.PlaneGeometry(3,4.77,1,1);
@@ -224,6 +224,42 @@ rst_cam_btn.onclick = function(){
         table.position.set(...pos);
         tables.push(table);
     });
+
+    // Box Geometry creation for Sensibo (Aircon) object detection
+    const aircon_geometry = new THREE.BoxGeometry(3.2, 1.1, 0.72);
+    const aircon_material = new THREE.MeshStandardMaterial({
+        color: 0x0000ff,
+        opacity: 0,
+        transparent: true,
+    });
+    const aircon_positions = [ 
+        [-9.8,7.55,14.65],      // back left
+        [6.4,7.55,14.65],       // back right
+        [-9.8,7.55,-14.65],     // Front-left
+        [6.3,7.55,-14.65]       // Front-right
+    ];
+
+    // Fetch AC names from REST API
+    var aircon_names = [];
+    const aircons = [];
+    
+    fetch(ip + '/sensibo', { headers: { accept: '/' } })
+    .then(res => res.json())
+    .then(data => {
+        aircon_names = data;
+
+        // Instantiate aircon geometries
+        aircon_positions.forEach((pos, index) => {
+        const aircon = new THREE.Mesh(aircon_geometry, aircon_material);
+        aircon.castShadow = false;
+        aircon.receiveShadow = false;
+        aircon.name = `${aircon_names[index]}_InputModel`; // Name for object detection
+        aircon.position.set(...pos);
+        scene.add(aircon);
+        aircons.push(aircon);
+    });
+    })
+    .catch(error => console.error(`Error fetching Sensibo IDs:`, error));
 
     // [2.2] OutlinePass creation for outlines when hovering over interactable objects
     let composer, outlinePass;
@@ -276,6 +312,9 @@ rst_cam_btn.onclick = function(){
                     document.getElementById("the_body").style.cursor = "pointer";
                     outlinePass.selectedObjects = [top_object];
                     air_gradient_one_label.style.opacity = '70%'; // Show label
+                } else if (top_object.name.includes("sensibo_air")) { // If the object at the top is a "sensibo_air" identified via object.name as defined here in code
+                    document.getElementById("the_body").style.cursor = "pointer";
+                    outlinePass.selectedObjects = [top_object];
                 }
             } else {
                 outlinePass.selectedObjects = [];
@@ -291,6 +330,7 @@ rst_cam_btn.onclick = function(){
     
     const closeBtn = document.getElementById("closeModal");     // Dashboard close button
     const modal = document.getElementById("modal");             // Dashboard reference
+    const aircon_modal = document.getElementById("aircon_modal"); // Aircon Dashboard reference
 
     var dashboard_data;
     var current_table;
@@ -336,16 +376,16 @@ rst_cam_btn.onclick = function(){
             pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
             raycaster.setFromCamera(pointer, camera);
-            const intersects = raycaster.intersectObjects(scene.children.filter(child => child.name.includes("Table")), false); // false -> non-recursive, better performance
+            const intersects = raycaster.intersectObjects(scene.children.filter(child => child.name.includes("InputModel")), false); // false -> non-recursive, better performance
 
             // If there are intersected objects with the ray...
             if (intersects.length > 0) {
                 let top_object = intersects[0].object
-                let tableName = top_object.name;
+                let ObjectName = top_object.name;
 
                 // Check which if and which table is clicked
-                if (tableName.includes("Table")) {
-                    let tableNumber = parseInt(tableName.replace("Table", ""), 10);
+                if (ObjectName.includes("Table")) {
+                    let tableNumber = parseInt(ObjectName.replace("Table", ""), 10);
                 
                     let positions = {
                         target: { x: 10, y: 3, z: 0 },
@@ -392,13 +432,119 @@ rst_cam_btn.onclick = function(){
                     current_table = tableNumber;
                     update_sensors(tableNumber);                                            // Initial update for a table
                     dashboard_data = setInterval(() => update_sensors(tableNumber), 5000); // Update every 5s for a table
+                
+                // If the object at the top is a "sensibo_air" (Aircon) identified via ObjectName as defined here in code
+                } else if (ObjectName.includes("sensibo_air")) {
+                    aircon_modal.classList.add("open");                                        // Open Aircon Dashboard
+
+                    // Code to look at aircon clicked
+                    gsap.to(controls.target, { x: top_object.position.x, y: top_object.position.y, z: top_object.position.z, duration: 1, ease: 'power2.inOut' });
+                    // Code to move camera to near aircon clicked
+                    if (ObjectName.includes("back_left") || ObjectName.includes("back_right")) {
+                        gsap.to(camera.position, { x: top_object.position.x, y: top_object.position.y, z: top_object.position.z - 13, duration: 1, ease: 'power2.inOut' });   // Set camera position
+                    } else {
+                        gsap.to(camera.position, { x: top_object.position.x, y: top_object.position.y, z: top_object.position.z + 13, duration: 1, ease: 'power2.inOut' });   // Set camera position
+                    }
+
+                    window.removeEventListener('mousemove', onMouseMove);               // Turn off raycasting for onMouseMove
+                    window.removeEventListener('click', onMouseClick);                  // Turn off raycasting for onMouseClick
+                    document.getElementById("the_body").style.cursor = "default";       // Turn pointer to default
+
+                    controls.mouseButtons.RIGHT = null;                   // Turn off rotating
+                    controls.mouseButtons.LEFT = null;                       // Turn off panning
+                    controls.enableZoom = false;                            // Turn off zooming
+
+                    initialize_remote(ObjectName.slice(0, ObjectName.indexOf("_InputModel")));  // Initialize remote control for selected aircon
                 }
             } 
              
     };
+    
+    // When exit button of Aircon Dashboard is clicked
+    document.getElementById("closeAirconModal").addEventListener("click", () => {
+        aircon_modal.classList.remove("open"); // Close Aircon Dashboard
+        window.addEventListener('mousemove', onMouseMove);                                  // Turn on raycasting for onMouseMove
+        window.addEventListener('click', onMouseClick);                                     // Turn on raycasting for onMouseClick
+        gsap.to(controls.target,{ x: 0, y: 0, z: 0, duration: 1, ease: 'power2.inOut'});    // Return to default view
+        gsap.to(camera.position,{ x: 20, y: 20, z: 20, duration: 1, ease: 'power2.inOut'});
+
+        controls.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;       // Turn on rotation
+        controls.mouseButtons.LEFT = THREE.MOUSE.PAN;           // Turn on panning
+        controls.enableZoom = true;                            // Turn on zooming
+    });
 
     // Event listsener for mouse click, sets clicked to True. Otherwise, sets it to false.
     window.addEventListener('click', onMouseClick);
+
+    // Define function for updating remote control aircon data
+    function initialize_remote(aircon_name) {
+        const hvac_modes = [`hvac_off`, `hvac_cool`, `hvac_heat`];
+        // Fetch aircon data
+        fetch(ip + `/sensibo/${aircon_name}`, { headers: { accept: '/' } })
+        .then(res => res.json())
+        .then(data => {
+            // Reset fontWeights of hvac_modes
+            hvac_modes.forEach(mode => {
+                document.getElementById(mode).style.fontWeight = 'normal';
+            });
+            // Update aircon data
+            document.getElementById("remote_temperature_display").innerHTML = `${data['temperature'].toFixed(1)}`;
+            let hvac_mode = `hvac_${data['hvac_mode']}`;
+            let set_temp = data['temperature'];
+            document.getElementById(`${hvac_mode}`).style.fontWeight = 'bold';
+
+            // Move HVAC mode selector to the left
+            document.getElementById(`hvac_left_btn`).onclick = function move_left() {
+                let current_index = hvac_modes.indexOf(hvac_mode);
+                let new_index = (current_index - 1 + 3) % 3;
+                document.getElementById(`${hvac_mode}`).style.fontWeight = 'normal';
+                document.getElementById(`${hvac_modes[new_index]}`).style.fontWeight = 'bold';
+                hvac_mode = hvac_modes[new_index];
+            };
+
+            // Move HVAC mode selector to the right
+            document.getElementById(`hvac_right_btn`).onclick = function move_right() {
+                let current_index = hvac_modes.indexOf(hvac_mode);
+                let new_index = (current_index + 1) % 3;
+                document.getElementById(`${hvac_mode}`).style.fontWeight = 'normal';
+                document.getElementById(`${hvac_modes[new_index]}`).style.fontWeight = 'bold';
+                hvac_mode = hvac_modes[new_index];
+            };
+
+            // Increase temperature by 0.1
+            document.getElementById("temp_up_btn").onclick = function move_up() {
+                let new_temp = parseFloat(document.getElementById("remote_temperature_display").innerHTML) + 0.1;
+                if (new_temp > 30) {
+                    new_temp = 30;
+                }
+                set_temp = new_temp;
+                document.getElementById("remote_temperature_display").innerHTML = new_temp.toFixed(1);
+            };
+
+            // Decrease temperature by 0.1
+            document.getElementById("temp_down_btn").onclick = function move_down() {
+                let new_temp = parseFloat(document.getElementById("remote_temperature_display").innerHTML) - 0.1;
+                if (new_temp < 10) {
+                    new_temp = 10;
+                }
+                set_temp = new_temp;
+                document.getElementById("remote_temperature_display").innerHTML = new_temp.toFixed(1);
+            };
+
+            // Send new temperature and hvac mode to aircon
+            document.getElementById(`set_hvac_mode_btn`).onclick = function set_hvac() {
+                send_hvac_mode(aircon_name, hvac_mode.split("_")[1], set_temp.toFixed(1));
+            };
+        })
+        .catch(error => console.error(`Error fetching Sensibo Data:`, error));
+    }
+
+    // Define function for sending new hvac mode and temperature to aircon
+    function send_hvac_mode(aircon_name, hvac_mode, set_temp) {
+        console.log(`Sending ${hvac_mode} and ${set_temp} to ${aircon_name}`);
+        fetch(ip + `/sensibo/${aircon_name}/hvac?hvac_mode=${hvac_mode}&target_temperature=${set_temp}`, { method: 'POST' })
+            .catch(error => console.log(`Error connecting to Sensibo:`, error));
+    }
 
     // Define positions of light
     const bulb_positions =[
@@ -581,7 +727,6 @@ rst_cam_btn.onclick = function(){
 
 // [2] Getting Information from REST API
 
-// !!! Working incomplete !!!    
 // API for get requests
 var time_update;
 

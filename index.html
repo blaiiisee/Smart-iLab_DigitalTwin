@@ -24,7 +24,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
-  </head>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
   <body id="the_body">
     <!--
       <script type="module" src="/src/sphere_and_cube.js"></script>
@@ -86,6 +87,32 @@
           <canvas id="myChart"></canvas>
         </div>
 
+      </div>
+    </div>
+
+    <!--Sensibo Aircon Modal div initially hidden-->
+    <div class="aircon_modal" id="aircon_modal">
+      <div id="remote_screen">
+        <div id="remote_hvac_mode">
+          <h3>MODE:</h3>
+          <button class="remote_hvac_mode_btn" id="hvac_left_btn">◄</button>
+          <p class="hvac_mode" id="hvac_off">OFF</p>
+          <p class="hvac_mode" id="hvac_cool">COOL</p>
+          <p class="hvac_mode" id="hvac_heat">HEAT</p>
+          <button class="remote_hvac_mode_btn" id="hvac_right_btn">►</button>
+        </div>
+        <div id="remote_temperature">
+          <div id="remote_temperature_display">26.5</div>
+          <div id="remote_temp_buttons">
+            <button class="remote_temp_btn" id="temp_up_btn">▲</button>
+            <p>°C</p>
+            <button class="remote_temp_btn" id="temp_down_btn">▼</button>
+          </div>
+        </div>
+      </div>
+      <div id="remote_buttons">
+        <button id="set_hvac_mode_btn" class="ac_remote_btn" style="color: rgb(81, 146, 81)">SET STATE</button> <br>
+        <button id="closeAirconModal" class="ac_remote_btn" style="color: rgb(148, 76, 76)">EXIT</button>
       </div>
     </div>
 
