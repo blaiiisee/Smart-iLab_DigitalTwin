@@ -567,7 +567,7 @@ rst_cam_btn.onclick = function(){
     ];
     // Store bulbs/spheres in this array
     const bulbs = [];
-    const bulb_geometry = new THREE.SphereGeometry(0.08,8,6);
+    const bulb_geometry = new THREE.SphereGeometry(0.15,8,6);
 
     // Make bulbs and push into storage array
     bulb_positions.forEach((id, index) => {
@@ -584,7 +584,7 @@ rst_cam_btn.onclick = function(){
 
     // Make lights and push into storage array
     bulb_positions.forEach((id, index) => {
-        const ptlight = new THREE.PointLight(new THREE.Color().setRGB( 0.5, 0.5, 0.5 ) , 0.3, 0.5 );
+        const ptlight = new THREE.PointLight(new THREE.Color().setRGB( 0.5, 0.5, 0.5 ) , 2, 12);
         ptlight.position.set(...bulb_positions[index]);
         scene.add( ptlight );
         bulb_lights.push(ptlight);
@@ -808,9 +808,10 @@ const smart_plug_2_ids = [
 ];
 
 // To add: Update ALL table's MSR-2 Live Temperature and LED State
-function msr2_table_update() {
-    msr_2_ids.forEach((id, index) => {
-        fetch(ip + `/msr-2/${id}`, { headers: { accept: '/'} })
+function table_update() {
+    // Update live temeprature
+    air_1_ids.forEach((id, index) => {
+        fetch(ip + `/air-1/${id}`, { headers: { accept: '/'} })
             .then(res => res.json())
             .then(data => {
                 // Changing the temperature value
@@ -818,13 +819,20 @@ function msr2_table_update() {
                     temp_labels[index].textContent = `${(data['temperature']).toFixed(2)}°C`;
                 }
                 // REMOVE THIS FOR LAST UPDATED TIME -- DASHBOARD HEADER
-                if (id == 'cc0b5c') {
+                if (id == '87b074') {
                     let new_time = new Date(data['timestamp']);
                     time_update = `Server last updated: ${new_time}`;
                     // Add last updated time in Dashboard view
                     document.getElementById("last_update").innerHTML = time_update;
                 }
-                // Update MSR-2 Lights/Bulbs here as well
+            })
+            .catch(error => console.error(`Error fetching sensor ${id}:`, error));
+        });
+    msr_2_ids.forEach((id, index) => {
+        fetch(ip + `/msr-2/${id}`, { headers: { accept: '/'} })
+            .then(res => res.json())
+            .then(data => {
+                // Update MSR-2 Lights/Bulbs here
 
                 // If light state is OFF
                 if(data['state'] == false) {
@@ -840,14 +848,13 @@ function msr2_table_update() {
                     bulb_lights[index].power = data['brightness'];
                 }
             })
-            .catch(error => console.error(`Error fetching sensor ${id}:`, error));
         });
         // Call the function to update Zigbee2MQTT Lights here (spotlight)
         zigbeelights_update();
     }
 
-msr2_table_update();
-const table_temperature = setInterval(msr2_table_update, 1000); // Run function every 1000ms (1s)
+table_update();
+const table_temperature = setInterval(table_update, 1000); // Run function every 1000ms (1s)
 
 // Creation of spotLights and storing them to an array
 const spotLights = [];
