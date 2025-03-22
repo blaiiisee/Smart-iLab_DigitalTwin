@@ -27,6 +27,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
   <body id="the_body">
+
+    <div class="card__holder" id="login_screen">
+      <div class="card">
+        <span class="card__title">Insert API Key</span>
+        <p class="card__content">The API Key is used for controlling devices through the Digital Twin.
+        </p>
+        <div class="card__form">
+            <input placeholder="Your API Key" type="text" id="key_input">
+              <button class="sign-up" id="enter_no_key">Enter without key</button>
+              <button class="sign-up" id="enter_with_key">Enter with Key</button>
+        </div>
+        <p id="login_error_text" style="color: #b32a15; font-size: smaller;"></p>
+      </div>
+    </div>
+
+
+
     <!--
       <script type="module" src="/src/sphere_and_cube.js"></script>
     -->
@@ -134,11 +151,11 @@
       <button id = "top_cam_btn" class="button"><span class="inner">Overhead View</span></button>
         <br>
       <!-- From Uiverse.io by r7chardgh --> 
-      <label class="switch">
+      <label class="switch" id="switch_handler">
         <input class="cb" type="checkbox" checked="true" id="light_switch"/>
-        <span class="toggle">
-          <span class="left">off</span>
-          <span class="right">on</span>
+        <span class="toggle" id="switch_toggler">
+          <span class="left" id="switch_toggle_left">off</span>
+          <span class="right" id="switch_toggle_right">on</span>
         </span>
       </label>
 

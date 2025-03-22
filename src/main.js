@@ -2,7 +2,7 @@
 // npm install three
 // npm install gsap
 
-const ip = "http://10.158.66.30:80"; // IP of REST API
+const ip = "http://localhost:80"; // IP of REST API
 
 
 
@@ -147,8 +147,62 @@ loader.load('skybox/scene.gltf', (gltf) => {
 // Adding color to background
 scene.background = new THREE.Color( 0x1a1a1a);
 
+// Logging in using API key
+var on_login_screen = true;
+var has_key = false;
+var API_key;
+
+const btn_no_key = document.getElementById("enter_no_key");
+const btn_with_key = document.getElementById("enter_with_key");
+
+// Case 1: Using Digital Twin without API Key
+btn_no_key.onclick = function () {
+    has_key = false;         // no API Key given
+    on_login_screen = false;    // Allow raytracing
+
+    // Disable switch for zigbeelights
+    light_switch.style.pointerEvents = 'none';
+    document.getElementById("switch_toggler").style.pointerEvents = 'none';
+    document.getElementById("switch_toggle_left").style.pointerEvents = 'none';
+    document.getElementById("switch_toggle_right").style.pointerEvents = 'none';
+    document.getElementById("switch_handler").style.pointerEvents = 'none';
+
+    // Move login screen to back of everything and make it invisible
+    const login_screen = document.getElementById("login_screen");
+    login_screen.style.opacity = '0%';
+    login_screen.style.zIndex = '-100';
+}
 
 
+// Case 2: Using Digital Twin with API Key
+btn_with_key.onclick = function () {
+    API_key = document.getElementById("key_input").value;
+    if (API_key == ``) {
+        document.getElementById(`login_error_text`).innerHTML = `Please enter an API Key.`;
+        return;
+    }
+    console.log(API_key);
+    document.getElementById(`login_error_text`).innerHTML = `Loading...`
+    // Check if key is valid
+    fetch(ip + `/access/${API_key}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })
+        .then(res => res.json())
+        .then(data => {
+            // Check state of each light
+            console.log(data);
+            if (data == 2 || data == 0){
+                has_key = true;             // API Key given
+                on_login_screen = false;    // Allow raytracing
+                // Move login screen to back of everything and make it invisible
+                const login_screen = document.getElementById("login_screen");
+                login_screen.style.opacity = '0%';
+                login_screen.style.zIndex = '-100';
+            } else if (data == 1) {
+                document.getElementById(`login_error_text`).innerHTML = `Your API Key is READ-ONLY. Please enter a READ and WRITE API Key. Contact admin for further support.`
+            } else {
+                document.getElementById(`login_error_text`).innerHTML = `Please enter a valid API Key. Contact admin for further support.`
+            }
+    })
+}
 
 
 
@@ -243,7 +297,7 @@ rst_cam_btn.onclick = function(){
     var aircon_names = [];
     const aircons = [];
     
-    fetch(ip + '/sensibo', { headers: { accept: '/' } })
+    fetch(ip + '/sensibo', { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })
     .then(res => res.json())
     .then(data => {
         aircon_names = data;
@@ -288,6 +342,7 @@ rst_cam_btn.onclick = function(){
     // While mouse is moving: Function for calculating pointer position, raycasting information...
     const onMouseMove = (event) => {
             if(mouse_held) return; // If mouse is being held down i.e. rotating the scene, DO NOT TRACE RAYS
+            if(on_login_screen) return; // If user is in login screen, DO NOT TRACE RAYS
 
             // calculate pointer position in normalized device coordinates
             // [-1 to +1] for both components
@@ -370,6 +425,8 @@ rst_cam_btn.onclick = function(){
 
     // When mouse is clicked: Function for calculating pointer position, raycasting information...
     const onMouseClick = (event) => {
+            if(on_login_screen) return; // If user is in login screen, DO NOT TRACE RAYS
+
             // calculate pointer position in normalized device coordinates
             // [-1 to +1] for both components
             pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -435,7 +492,8 @@ rst_cam_btn.onclick = function(){
                 
                 // If the object at the top is a "sensibo_air" (Aircon) identified via ObjectName as defined here in code
                 } else if (ObjectName.includes("sensibo_air")) {
-                    aircon_modal.classList.add("open");                                        // Open Aircon Dashboard
+                    if (!has_key) return;                   // Do nothing if user doesn't have API Key
+                    aircon_modal.classList.add("open");     // Open Aircon Dashboard if user has API key
 
                     // Code to look at aircon clicked
                     gsap.to(controls.target, { x: top_object.position.x, y: top_object.position.y, z: top_object.position.z, duration: 1, ease: 'power2.inOut' });
@@ -480,7 +538,7 @@ rst_cam_btn.onclick = function(){
     function initialize_remote(aircon_name) {
         const hvac_modes = [`hvac_off`, `hvac_cool`, `hvac_heat`];
         // Fetch aircon data
-        fetch(ip + `/sensibo/${aircon_name}`, { headers: { accept: '/' } })
+        fetch(ip + `/sensibo/${aircon_name}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })
         .then(res => res.json())
         .then(data => {
             // Reset fontWeights of hvac_modes
@@ -542,7 +600,7 @@ rst_cam_btn.onclick = function(){
     // Define function for sending new hvac mode and temperature to aircon
     function send_hvac_mode(aircon_name, hvac_mode, set_temp) {
         console.log(`Sending ${hvac_mode} and ${set_temp} to ${aircon_name}`);
-        fetch(ip + `/sensibo/${aircon_name}/hvac?hvac_mode=${hvac_mode}&target_temperature=${set_temp}`, { method: 'POST' })
+        fetch(ip + `/sensibo/${aircon_name}/hvac?hvac_mode=${hvac_mode}&target_temperature=${set_temp}`, { method: 'POST', headers: { 'Accept' : '*/*', 'X-API-KEY' : `${API_key}`} })
             .catch(error => console.log(`Error connecting to Sensibo:`, error));
     }
 
@@ -603,13 +661,13 @@ rst_cam_btn.onclick = function(){
 // [3] Turn on and off ALL the Lights
     const light_switch = document.getElementById("light_switch");
     light_switch.addEventListener("click", () => {
-
+        if (!has_key) return;
         // Fetch depends on light_switch state
         if (light_switch.checked) {
-            fetch(ip + '/zigbee2mqtt/tables/set?state=ON&brightness=60&color_temperature=153', { method: 'POST' })
+            fetch(ip + '/zigbee2mqtt/table_lights_switch?switch_state=ON', { method: 'POST', headers: { 'Accept' : '*/*', 'X-API-KEY' : `${API_key}`} })
                 .catch(error => console.error(`Error fetching tables/set:`, error));
         } else {
-            fetch(ip + '/zigbee2mqtt/tables/set?state=OFF&brightness=60&color_temperature=153', { method: 'POST' })
+            fetch(ip + '/zigbee2mqtt/table_lights_switch?switch_state=OFF', { method: 'POST', headers: { 'Accept' : '*/*', 'X-API-KEY' : `${API_key}`} })
                 .catch(error => console.error(`Error fetching tables/set:`, error));
         }
     });
@@ -620,26 +678,22 @@ rst_cam_btn.onclick = function(){
     function check_lights() {
         let all_on = true;
         let all_off = true;
-        fetch(ip + '/groups/All%20Table%20Lights', { headers: { accept: '/' } })
+        fetch(ip + '/zigbee2mqtt/table_lights_switch', { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })
             .then(res => res.json())
             .then(data => {
-                // Check state of each light
-                for (let i = 1; i < 17; i++) {
-                    if (data[`zigbee2mqtt_table_${i}`]['state'] == 'ON') {
-                        all_off = false;
-                    } else {
-                        all_on = false;
+                if (data[`state`] == `ON`){
+                    zigbeelights_update();
+                    light_switch.checked = true;
+                } else {
+                    light_switch.checked = false;   // Switch OFF Switch UI
+                    // Turn off all spotlights
+                    for (let i = 1; i < 17; i++) {
+                        spotLights[i-1].intensity = 0;
                     }
                 }
-
-                if (all_on) {
-                    light_switch.checked = true;
-                } else if (all_off) {
-                    light_switch.checked = false;
-                }
-                
             })
             .catch(error => console.error(`Error fetching Zigbee Lights Group Data`, error));
+
     
     }
 
@@ -811,7 +865,7 @@ const smart_plug_2_ids = [
 function table_update() {
     // Update live temeprature
     air_1_ids.forEach((id, index) => {
-        fetch(ip + `/air-1/${id}`, { headers: { accept: '/'} })
+        fetch(ip + `/air-1/${id}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })
             .then(res => res.json())
             .then(data => {
                 // Changing the temperature value
@@ -829,7 +883,7 @@ function table_update() {
             .catch(error => console.error(`Error fetching sensor ${id}:`, error));
         });
     msr_2_ids.forEach((id, index) => {
-        fetch(ip + `/msr-2/${id}`, { headers: { accept: '/'} })
+        fetch(ip + `/msr-2/${id}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })
             .then(res => res.json())
             .then(data => {
                 // Update MSR-2 Lights/Bulbs here
@@ -849,8 +903,7 @@ function table_update() {
                 }
             })
         });
-        // Call the function to update Zigbee2MQTT Lights here (spotlight)
-        zigbeelights_update();
+
     }
 
 table_update();
@@ -884,7 +937,7 @@ table_positions.forEach((id, index) => {
 // Function to update Zigbee Light per table/workstation
 function zigbeelights_update() {
     for (let i = 1; i < 17; i++) {
-        fetch(ip + `/zigbee2mqtt/table_${i}/get`, { headers: { accept: '/'} })
+        fetch(ip + `/zigbee2mqtt/table_${i}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })
             .then(res => res.json())
             .then(data => {
                 if(data['state']=="OFF"){
@@ -901,11 +954,12 @@ function zigbeelights_update() {
       }
 }
 
-
+// Call the function to update Zigbee2MQTT Lights here (spotlight)
+zigbeelights_update();
 // Get and store all available Sensibo Air Pro IDs
 const sensibo_ids = [];
 
-fetch(ip + '/sensibo', { headers: { accept: '/' } })
+fetch(ip + '/sensibo', { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })
     .then(res => res.json())
     .then(data => {
         sensibo_ids.push(data[0]);
@@ -921,7 +975,7 @@ const sensibo_state = setInterval(sensibo_update, 5000); // Run function every 5
 // Function to update sensibo labels
 function sensibo_update() {
     for (let i = 0; i < 4; i++) {
-        fetch(ip + `/sensibo/${sensibo_ids[i]}`, { headers: { accept: '/' } })
+        fetch(ip + `/sensibo/${sensibo_ids[i]}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })
             .then(res => res.json())
             .then(data => {
                 sensibo_labels[i].textContent = `${data['temperature'].toFixed(1)} °C`;
@@ -944,7 +998,7 @@ function sensibo_update() {
 // Get and store available Air Gradient One ID
 var air_gradient_one_id;
 
-fetch(ip + '/ag-one', { headers: { accept: '/' } })
+fetch(ip + '/ag-one', { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })
     .then(res => res.json())
     .then(data => {
         air_gradient_one_id = data[0];
@@ -954,7 +1008,7 @@ fetch(ip + '/ag-one', { headers: { accept: '/' } })
 
 // Function to update Air Gradient One label
 function air_gradient_one_update() {
-    fetch(ip + `/ag-one/${air_gradient_one_id}`, { headers: { accept: '/' } })
+    fetch(ip + `/ag-one/${air_gradient_one_id}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })
         .then(res => res.json())
         .then(data => {
             air_gradient_one_label.innerHTML =    
@@ -975,7 +1029,7 @@ const ag1_state = setInterval(air_gradient_one_update, 5000); // Run function ev
 
 // Function to update data in Dashboard view
 function update_sensors(table_no){
-    fetch(ip + `/msr-2/${msr_2_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
+    fetch(ip + `/msr-2/${msr_2_ids[table_no-1]}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })    // IP address to change
             .then(res => res.json())
             .then(data => {
                 let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
@@ -999,7 +1053,7 @@ function update_sensors(table_no){
                 });
                 document.getElementById("msr-2-data").innerHTML = new_data;
             });
-    fetch(ip + `/air-1/${air_1_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
+    fetch(ip + `/air-1/${air_1_ids[table_no-1]}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })    // IP address to change
             .then(res => res.json())
             .then(data => {
                 let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
@@ -1022,7 +1076,7 @@ function update_sensors(table_no){
                 });
                 document.getElementById("air-1-data").innerHTML = new_data;
             });
-    fetch(ip + `/smart-plug-v2/${smart_plug_1_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
+    fetch(ip + `/smart-plug-v2/${smart_plug_1_ids[table_no-1]}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })    // IP address to change
             .then(res => res.json())
             .then(data => {
                 let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
@@ -1045,7 +1099,7 @@ function update_sensors(table_no){
                 });
                 document.getElementById("smart-plug-1-data").innerHTML = new_data;
             });
-    fetch(ip + `/smart-plug-v2/${smart_plug_2_ids[table_no-1]}`, { headers: { accept: '/' } })    // IP address to change
+    fetch(ip + `/smart-plug-v2/${smart_plug_2_ids[table_no-1]}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })    // IP address to change
             .then(res => res.json())
             .then(data => {
                 let keys = Object.keys(data);           // Store keys (parameters) in JSON to temporary variable
@@ -1180,7 +1234,7 @@ function download_device_data() {
         end = encodeURIComponent(end.toISOString());
         let query = `time_start=${start}&time_end=${end}`;
         console.log(ip + `/${device}/${sensor_id}?${query}`);
-        fetch(ip + `/${device}/${sensor_id}?${query}`, { headers: { accept: '/' } })    // GET Historical Data
+        fetch(ip + `/${device}/${sensor_id}?${query}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })    // GET Historical Data
             .then(res => res.json())
             .then(data => {
                 console.log(data);
@@ -1234,7 +1288,7 @@ const config = {
 const chart = new Chart(ctx, config);
 
 function update_chart() {
-    fetch(ip + `/msr-2/${msr_2_ids[current_table-1]}`, { headers: { accept: '/' } })    // IP address to change
+    fetch(ip + `/msr-2/${msr_2_ids[current_table-1]}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })    // IP address to change
             .then(res => res.json())
             .then(data => {
                 if (info['labels'].at(-1) !== data['timestamp']) {
@@ -1268,3 +1322,12 @@ function animate(t = 0) {
     checkbox();                             // Check if checkbox is selected
   };
   animate();
+
+// For when window resizes
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    labelRenderer.setSize(window.innerWidth, window.innerHeight); // Resize CSS2DRenderer
+})

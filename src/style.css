@@ -339,6 +339,85 @@ body {
   color: #487bdb;
 }
 
+/* Sign in Styling */
+.card__holder{
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;       /* Fill the entire screen */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.5s ease-in;
+}
+
+.card {
+  width: 240px;
+  height: 320px;
+  padding: 0 15px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  background: #fff;
+  border-radius: 20px;
+  font-family: Lexend;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  translate: -135px -127px;
+}
+
+.card > * {
+  margin: 0;
+}
+
+.card__title {
+  font-size: 23px;
+  font-weight: 900;
+  color: #333;
+}
+
+.card__content {
+  font-size: 13px;
+  line-height: 18px;
+  color: #333;
+}
+
+.card__form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card__form input {
+  margin-top: 10px;
+  outline: 0;
+  background: rgb(255, 255, 255);
+  box-shadow: transparent 0px 0px 0px 1px inset;
+  padding: 0.6em;
+  border-radius: 14px;
+  border: 1px solid #333;
+  color: black;
+}
+
+.card__form button {
+  border: 0;
+  background: #111;
+  color: #fff;
+  padding: 0.68em;
+  border-radius: 14px;
+  font-weight: bold;
+}
+
+.sign-up:hover {
+  opacity: 0.8;
+} 
+
 
 /* Pop-up (modal) Styling */
 .modal {  /* The entire screen */
