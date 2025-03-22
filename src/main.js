@@ -2,7 +2,7 @@
 // npm install three
 // npm install gsap
 
-const ip = "http://10.158.66.30:81"; // IP of REST API
+const ip = "http://10.158.66.30:80"; // IP of REST API
 
 
 
