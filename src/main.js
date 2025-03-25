@@ -2,7 +2,7 @@
 // npm install three
 // npm install gsap
 
-const ip = "http://10.158.66.30:81"; // IP of REST API
+const ip = "http://10.158.66.30:80"; // IP of REST API
 
 
 
@@ -277,6 +277,49 @@ rst_cam_btn.onclick = function(){
         scene.add(table);
         table.position.set(...pos);
         tables.push(table);
+    });
+
+    // Define positions of occupancy indicators
+    const occupancy_positions = [
+        [7.79, 3, -4.65],
+        [7.79, 3, 0.28],
+        [7.79, 3, 5.24],
+        [7.79, 3, 10.21],
+        [1.9, 3, -4.65],
+        [1.9, 3, 0.28],
+        [1.9, 3, 5.24],
+        [1.9, 3, 10.21],
+        [-5.25, 3, -4.65],
+        [-5.25, 3, 0.28],
+        [-5.25, 3, 5.24],
+        [-5.25, 3, 10.21],
+        [-10.48, 3, -4.65],
+        [-10.48, 3, 0.28],
+        [-10.48, 3, 5.24],
+        [-10.48, 3, 10.21]
+    ];
+    
+    
+
+    const occupancy_models = [];
+    const light_occupancy = []
+
+    // Define Occupancy Models and Material
+    const occupancy_material = new THREE.MeshToonMaterial({color: 0x44b027});
+    const occupancy_geometry = new THREE.OctahedronGeometry(0.4);
+
+    occupancy_positions.forEach((pos, index) => {
+        const occupancy = new THREE.Mesh(occupancy_geometry, occupancy_material);
+        occupancy.castShadow = false;
+        occupancy.receiveShadow = false;
+        occupancy.name = `Occupancy${index + 1}_InputModel`;
+        scene.add(occupancy);
+        occupancy.position.set(...pos);
+        occupancy_models.push(occupancy);
+        const light = new THREE.PointLight( 0x00ff00, 0.5, 3 );
+        light.position.set(...pos);
+        scene.add( light );
+        light_occupancy.push(light);
     });
 
     // Box Geometry creation for Sensibo (Aircon) object detection
@@ -861,7 +904,7 @@ const smart_plug_2_ids = [
     '9d893e'
 ];
 
-// To add: Update ALL table's MSR-2 Live Temperature and LED State
+// To add: Update ALL table's AIR-1 Live Temperature and MSR-2 LED State
 function table_update() {
     // Update live temeprature
     air_1_ids.forEach((id, index) => {
@@ -893,6 +936,9 @@ function table_update() {
                     // Turn the bulb model OFF
                     bulbs[index].material.color.set(0.5,0.5,0.5);
                     bulb_lights[index].color.set(0,0,0);
+                    occupancy_models[index].visible = false;
+                    light_occupancy[index].intensity = 0;
+
                 } else {
                     // Set colors
                     bulbs[index].material.color.set(data['r'], data['g'], data['b']);
@@ -900,6 +946,10 @@ function table_update() {
 
                     // Set brightness
                     bulb_lights[index].power = data['brightness'];
+
+                    // Set occupancy indicator ()
+                    occupancy_models[index].visible = true;
+                    light_occupancy[index].intensity = 0.5;
                 }
             })
         });
@@ -1320,6 +1370,12 @@ function animate(t = 0) {
     composer.render();                      // Render Composre (for OutlinePass)
     labelRenderer.render(scene, camera);    // Render Labels
     checkbox();                             // Check if checkbox is selected
+
+    // Animate rotation of visible models
+    occupancy_models.forEach((id, index) => {
+        occupancy_models[index].rotation.y += 0.005;
+    });
+
   };
   animate();
 

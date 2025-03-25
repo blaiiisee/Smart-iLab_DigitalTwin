@@ -360,7 +360,7 @@ body {
   text-align: center;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-evenly;
   flex-direction: column;
   gap: 12px;
   background: #fff;
@@ -416,6 +416,7 @@ body {
 
 .sign-up:hover {
   opacity: 0.8;
+  cursor: pointer;
 } 
 
 

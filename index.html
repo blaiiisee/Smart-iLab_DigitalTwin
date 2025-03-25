@@ -34,9 +34,11 @@
         <p class="card__content">The API Key is used for controlling devices through the Digital Twin.
         </p>
         <div class="card__form">
-            <input placeholder="Your API Key" type="text" id="key_input">
-              <button class="sign-up" id="enter_no_key">Enter without key</button>
-              <button class="sign-up" id="enter_with_key">Enter with Key</button>
+            <input type="password" placeholder="Your API Key" type="text" id="key_input">
+            <div style="width: max-content; gap: 5%; display: flex; flex-direction: row; justify-content: space-around; align-content: space-between;">
+              <button class="sign-up" id="enter_no_key" style="background-color: #9e9334">Enter w/o Key</button>
+              <button class="sign-up" id="enter_with_key" style="background-color: #137735">Enter with Key</button>
+            </div>
         </div>
         <p id="login_error_text" style="color: #b32a15; font-size: smaller;"></p>
       </div>
