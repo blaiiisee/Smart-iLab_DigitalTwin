@@ -28,6 +28,7 @@ import { ShaderPass } from 'https://cdn.jsdelivr.net/npm/three@0.172.0/examples/
 import { GammaCorrectionShader } from 'https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/shaders/GammaCorrectionShader.js';
 // CSS2D for HTML Position Projection 
 import { CSS2DRenderer, CSS2DObject } from 'https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/renderers/CSS2DRenderer.js';
+import { DoubleSide } from 'three';
 // Chart.js for data visualization -- graphical representation
 //import { Chart } from './node_modules/chart.js/auto/auto.js';
 
@@ -298,8 +299,6 @@ rst_cam_btn.onclick = function(){
         [-10.48, 3, 5.24],
         [-10.48, 3, 10.21]
     ];
-    
-    
 
     const occupancy_models = [];
     const light_occupancy = []
@@ -321,6 +320,48 @@ rst_cam_btn.onclick = function(){
         scene.add( light );
         light_occupancy.push(light);
     });
+
+    // Define positions of Horn models to visualize MSR-2 Buzzer
+    const horn_positions = [
+        [9.79, 2.805, -3.65],
+        [9.79, 2.805, 1.28],
+        [9.79, 2.805, 6.24],
+        [9.79, 2.805, 11.21],
+        [-0.1, 2.805, -3.65],
+        [-0.1, 2.805, 1.28],
+        [-0.1, 2.805, 6.24],
+        [-0.1, 2.805, 11.21],
+        [-3.25, 2.805, -3.65],
+        [-3.25, 2.805, 1.28],
+        [-3.25, 2.805, 6.24],
+        [-3.25, 2.805, 11.21],
+        [-12.48, 2.805, -3.65],
+        [-12.48, 2.805, 1.28],
+        [-12.48, 2.805, 6.24],
+        [-12.48, 2.805, 11.21]
+    ];      
+    
+    const horn_models = [];
+
+    horn_positions.forEach((pos,index) => {
+        const geometry = new THREE.ConeGeometry( 5, 9, 12, 1, true );
+        if ((index > 3 && index < 8) || index > 11) {
+            geometry.rotateZ(Math.PI/2);
+            geometry.rotateX(Math.PI/2);
+        } else {
+            geometry.rotateZ(-Math.PI/2);
+            geometry.rotateX(Math.PI/2);
+        }
+        const material = new THREE.MeshMatcapMaterial( {color: 0x1478a6 , side: THREE.DoubleSide} );
+        const cone = new THREE.Mesh(geometry, material); 
+        cone.position.set(...pos);
+        cone.castShadow = true;
+        cone.receiveShadow = true;
+        cone.scale.set(0.1,0.1,0.1);
+        cone.name = `Horn${index + 1}_InputModel`;
+        horn_models.push(cone);
+        scene.add( cone );
+    })
 
     // Box Geometry creation for Sensibo (Aircon) object detection
     const aircon_geometry = new THREE.BoxGeometry(3.2, 1.1, 0.72);
@@ -951,6 +992,14 @@ function table_update() {
                     occupancy_models[index].visible = true;
                     light_occupancy[index].intensity = 0.5;
                 }
+
+                // Make horn model visible if buzzer state is ON
+                if(data['buzzer_state'] == true) {
+                    horn_models[index].visible = true;
+                } else {
+                    horn_models[index].visible = false;
+                }
+
             })
         });
 
@@ -1371,9 +1420,17 @@ function animate(t = 0) {
     labelRenderer.render(scene, camera);    // Render Labels
     checkbox();                             // Check if checkbox is selected
 
-    // Animate rotation of visible models
+    // Animate rotation of visible occupancy models
     occupancy_models.forEach((id, index) => {
         occupancy_models[index].rotation.y += 0.005;
+    });
+
+    // Animate rotation of visible horn models
+    horn_models.forEach((id, index) => {
+        horn_models[index].rotation.x += 0.01;
+        horn_models[index].scale.x = 0.05 + 0.005*Math.sin(t/200);
+        horn_models[index].scale.y = 0.05 + 0.005*Math.sin(t/200);
+        horn_models[index].scale.z = 0.05 + 0.005*Math.sin(t/200);
     });
 
   };
