@@ -163,9 +163,6 @@ btn_no_key.onclick = function () {
 
     // Disable switch for zigbeelights
     light_switch.style.pointerEvents = 'none';
-    document.getElementById("switch_toggler").style.pointerEvents = 'none';
-    document.getElementById("switch_toggle_left").style.pointerEvents = 'none';
-    document.getElementById("switch_toggle_right").style.pointerEvents = 'none';
     document.getElementById("switch_handler").style.pointerEvents = 'none';
 
     // Move login screen to back of everything and make it invisible
@@ -241,8 +238,8 @@ rst_cam_btn.onclick = function(){
     const table_geometry = new THREE.PlaneGeometry(3,4.77,1,1);
     table_geometry.rotateX(Math.PI/2);
     // table_material sets the table color
-    const table_material = new THREE.MeshStandardMaterial({
-        color:  0x859397,
+    const table_material = new THREE.MeshToonMaterial({
+        color:  0xcccccc,
         side: THREE.DoubleSide
     });
     table_material.roughness = 0.6;
@@ -312,10 +309,11 @@ rst_cam_btn.onclick = function(){
         occupancy.castShadow = false;
         occupancy.receiveShadow = false;
         occupancy.name = `Occupancy${index + 1}_InputModel`;
+        occupancy.castShadow = true;
         scene.add(occupancy);
         occupancy.position.set(...pos);
         occupancy_models.push(occupancy);
-        const light = new THREE.PointLight( 0x00ff00, 0.5, 3 );
+        const light = new THREE.PointLight( 0x00ff00, 0.2, 1 );
         light.position.set(...pos);
         scene.add( light );
         light_occupancy.push(light);
@@ -571,6 +569,8 @@ rst_cam_btn.onclick = function(){
                     document.getElementById("smart-plug-2-id").innerHTML = '#'+ smart_plug_2_ids[tableNumber-1];
                     
                     current_table = tableNumber;
+                    reset_chart(); // Reset chart information
+                    initiate_chart(); // Initial update chart information
                     update_sensors(tableNumber);                                            // Initial update for a table
                     dashboard_data = setInterval(() => update_sensors(tableNumber), 5000); // Update every 5s for a table
                 
@@ -713,7 +713,7 @@ rst_cam_btn.onclick = function(){
 
     // Make bulbs and push into storage array
     bulb_positions.forEach((id, index) => {
-        const bulb = new THREE.Mesh(bulb_geometry,  new THREE.MeshStandardMaterial({
+        const bulb = new THREE.Mesh(bulb_geometry,  new THREE.MeshToonMaterial({
             color:  0x000000,
         }));
         bulb.position.set(...bulb_positions[index]);
@@ -733,10 +733,10 @@ rst_cam_btn.onclick = function(){
     });
 
     // Adding 3D Model of Air Gradient One
-    const geometry = new THREE.BoxGeometry( 0.2, 0.5, 0.5); 
-    const material = new THREE.MeshStandardMaterial( { color: 0xc8c09e } );
+    const geometry = new THREE.BoxGeometry( 0.5, 0.15, 0.5); 
+    const material = new THREE.MeshToonMaterial( { color: 0xedfff9 } );
     const cube = new THREE.Mesh( geometry, material ); 
-    cube.position.set(-14.7, 2, -10);
+    cube.position.set(-0.5,2.4,-8);
     cube.castShadow = true;
     cube.receiveShadow = true;
     cube.name = "AirGradientOne_InputModel";
@@ -784,7 +784,38 @@ rst_cam_btn.onclick = function(){
     check_lights();
     const light_check = setInterval(check_lights, 2000); // Run function every 1000ms (1s)
 
+    // Define Positions of Blinds #1 fans when CLOSED
+    const blinds1_positions_closed = [
+        [-15.10, 4.8, 0.0],
+        [-15.10, 4.8, -0.4],
+        [-15.10, 4.8, -0.8],
+        [-15.10, 4.8, -1.2],
+        [-15.10, 4.8, -1.6],
+        [-15.10, 4.8, -2.0],
+        [-15.10, 4.8, -2.4],
+        [-15.10, 4.8, -2.8],
+        [-15.10, 4.8, -3.2],
+        [-15.10, 4.8, -3.6],
+        [-15.10, 4.8, -4.0],
+        [-15.10, 4.8, -4.4],
+    ];
+    
+    // Store bulbs/spheres in this array
+    const blinds1_fans = [];
+    const fan_geometry = new THREE.PlaneGeometry(0.5, 4);
+    const fan_material = new THREE.MeshToonMaterial( {color: 0xe0cc92, side: THREE.DoubleSide} );
 
+    // Make bulbs and push into storage array
+    blinds1_positions_closed.forEach((id, index) => {
+        const fan = new THREE.Mesh(fan_geometry, fan_material);
+        fan.position.set(...blinds1_positions_closed[index]);
+        // Rotate fan 15 degrees
+        fan.rotateY(-Math.PI/1.8);
+        fan.castShadow = true;
+        fan.receiveShadow = true;
+        scene.add(fan);
+        blinds1_fans.push(fan);
+    });
 
 
 
@@ -859,7 +890,7 @@ rst_cam_btn.onclick = function(){
 
     let airGradientOneLabel = new CSS2DObject(air_gradient_one_label);
     scene.add(airGradientOneLabel);
-    airGradientOneLabel.position.set(-14.7, 2.5, -12);
+    airGradientOneLabel.position.set(1.5,2.4,-8);
     air_gradient_one_label.style.opacity = '0%'; // Initially hidden
     
 
@@ -1371,11 +1402,12 @@ var values = [];
 var info = {
   labels: [],
   datasets: [{
-    label: 'msr-2 Temperature (°C)',
+    label: 'AIR-1 Temperature (°C)',
     data: values,
-    fill: false,
+    fill: true,
     borderColor: 'rgb(75, 192, 192)',
-    tension: 0.1
+    tension: 0,
+    pointBackgroundColor: 'rgb(75, 192, 192)',
   }]
 };
 const config = {
@@ -1386,15 +1418,44 @@ const config = {
 // Initiate chart
 const chart = new Chart(ctx, config);
 
+function initiate_chart() {
+    let end_time;
+    let start_time;
+    let end;
+    let start;
+    // Get most recent timestamp
+    fetch(ip + `/msr-2/${msr_2_ids[current_table-1]}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })    // IP address to change
+            .then(res => res.json())
+            .then(data => {
+                end_time = new Date(Date.parse(data['timestamp']));
+                start_time = new Date(end_time.getTime() - 50*1000); // Last 1 minute
+                end = encodeURIComponent(end_time.toISOString()).replace(':', '%3A').replace('Z', '').replace('T', '%20');
+                start = encodeURIComponent(start_time.toISOString()).replace(':', '%3A').replace('Z', '').replace('T', '%20');
+                // Fetch 5 most recent timestamp data
+                fetch(ip + `/msr-2/${msr_2_ids[current_table-1]}?time_start=${start}&time_end=${end}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })    // IP address to change
+                .then(res => res.json())
+                .then(data => {
+                    for (let i = data.length-1; i >=0; i--) {
+                        values.push(data[i]['temperature']);
+                        info['labels'].push(data[i]['timestamp']);
+                        chart.update();
+                    }
+                });
+            });
+}
+
 function update_chart() {
     fetch(ip + `/msr-2/${msr_2_ids[current_table-1]}`, { method: 'GET', headers: { 'Accept' : '*/*', 'X-API-KEY' : '54b4310c-da79-441b-b135-d9b00ba073fe'} })    // IP address to change
             .then(res => res.json())
             .then(data => {
-                if (info['labels'].at(-1) !== data['timestamp']) {
-                    values.push(data['temperature']);
-                    info['labels'].push(data['timestamp']);
-                    chart.update();
-                }
+                // Exit if the data is the same as the last one
+                if (data['timestamp'] == info['labels'][info['labels'].length-1]) return;
+
+                values.push(data['temperature']);
+                values.shift();
+                info['labels'].push(data['timestamp']);
+                info['labels'].shift();
+                chart.update();
             });
 }
 
@@ -1402,8 +1463,9 @@ function reset_chart() {
     chart.data.labels = [];
     values = [];
     chart.data.datasets[0]['data'] = values;
-    info['datasets'][0]['label'] = 'Temperature';
+    info['datasets'][0]['label'] = 'MSR-2 Temperature';
 }
+
 
 
 // ---------- RENDERING ----------

@@ -35,15 +35,14 @@
         </p>
         <div class="card__form">
             <input type="password" placeholder="Your API Key" type="text" id="key_input">
-            <div style="width: max-content; gap: 5%; display: flex; flex-direction: row; justify-content: space-around; align-content: space-between;">
-              <button class="sign-up" id="enter_no_key" style="background-color: #9e9334">Enter w/o Key</button>
+            <div style="width: 80%; gap: 5%; display: flex; flex-direction: column; justify-content: space-around; align-content: space-between; gap: 2px;">
               <button class="sign-up" id="enter_with_key" style="background-color: #137735">Enter with Key</button>
+              <button class="sign-up" id="enter_no_key" style="background-color: #9e9334">Enter without Key</button>
             </div>
         </div>
-        <p id="login_error_text" style="color: #b32a15; font-size: smaller;"></p>
+        <p id="login_error_text" style="color: #b32a15; font-size: smaller; margin-bottom: 5px;"></p>
       </div>
     </div>
-
 
 
     <!--
@@ -137,30 +136,30 @@
 
     <!--Tools div located at bottom left of page-->
     <div id="tools">
+      <!-- From Uiverse.io by mrhyddenn -->
+      <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; background-color: #e2e2e2; border-radius: 5px;font-size: 16px; font-weight: 900;">
+        <label class="switch" id="switch_handler">
+          <input class="cb" type="checkbox" checked="true" id="light_switch">
+          <span class="slider"></span>
+        </label>
+          <p style="margin: 15px; color: rgb(49, 49, 49);">Light Switch</p>
+      </div>
 
       <!-- From Uiverse.io by WhiteNervosa --> 
-        <div class="customCheckBoxHolder">
+      <div class="customCheckBoxHolder">
 
-          <input type="checkbox" id="temp_checkbox" class="customCheckBoxInput" checked>
-          <label for="temp_checkbox" class="customCheckBoxWrapper">
-              <div class="customCheckBox">
-                  <div class="inner">Toggle Labels</div>
-              </div>
-          </label>
+        <input type="checkbox" id="temp_checkbox" class="customCheckBoxInput" checked="true">
+        <label for="temp_checkbox" class="customCheckBoxWrapper">
+            <div class="customCheckBox">
+                <div class="inner">Toggle Labels</div>
+            </div>
+        </label>
 
-        </div>
-      <button id = "rst_cam_btn" class="button"><span class="inner">Isometric View</span></button>
-      <button id = "top_cam_btn" class="button"><span class="inner">Overhead View</span></button>
+      </div>
+
+      <button id = "rst_cam_btn" class="button"><img src="/assets/icons/isometric_view.png" style="height: 15px; margin-right: 0.3em; left: 0.5em;"><span class="inner">Isometric View</span></button>
+      <button id = "top_cam_btn" class="button"><img src="/assets/icons/overhead_view.png" style="height: 15px; margin-right: 0.3em; left: 0.5em;"><span class="inner">Overhead View</span></button>
         <br>
-      <!-- From Uiverse.io by r7chardgh --> 
-      <label class="switch" id="switch_handler">
-        <input class="cb" type="checkbox" checked="true" id="light_switch"/>
-        <span class="toggle" id="switch_toggler">
-          <span class="left" id="switch_toggle_left">off</span>
-          <span class="right" id="switch_toggle_right">on</span>
-        </span>
-      </label>
-
     <!-- END of Tools div --> 
     </div>
   

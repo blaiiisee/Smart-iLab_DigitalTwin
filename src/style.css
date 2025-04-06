@@ -27,7 +27,8 @@ body {
 
 /* Tools div Style Properties */
 #tools {
-	display:block;
+	display: flex;
+  flex-direction: column;
   font-family: Lexend;
   position: fixed;
   bottom: 0;
@@ -48,7 +49,7 @@ body {
   font-size: 18px;
   color: rgba(255, 255, 255, 1);
   cursor: pointer;
-  width: 10em;
+  width: 12em;
   user-select: none;
   display: flex;
   justify-content: center;
@@ -139,12 +140,13 @@ body {
 /* Checkbox Styling */
 /* From Uiverse.io by WhiteNervosa */ 
 .customCheckBoxHolder {
-  margin: 14.5px;
+  margin-top: 14.5px;
+  margin-bottom: 14.5px;
   display: flex;
 }
 
 .customCheckBox {
-  width: 8em;
+  width: 12.5em;
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -221,127 +223,65 @@ body {
   transform: translateY(-2px);
 }
 
-/* From Uiverse.io by r7chardgh */ 
+/* From Uiverse.io by mrhyddenn */ 
 /* The switch - the box around the slider */
 .switch {
   font-size: 17px;
   position: relative;
   display: inline-block;
-  width: 5em;
-  height: 2.5em;
-  user-select: none;
-}
-
-/* Hide default HTML checkbox */
-.switch .cb {
-  opacity: 0;
+  width: 62px;
+  height: 35px;
+ }
+ 
+ /* Hide default HTML checkbox */
+ .switch input {
+  opacity: 1;
   width: 0;
   height: 0;
-}
-
-/* The slider */
-.toggle {
+ }
+ 
+ /* The slider */
+ .slider {
   position: absolute;
   cursor: pointer;
-  width: 100%;
-  height: 100%;
-  background-color: #373737;
-  border-radius: 0.1em;
-  transition: 0.4s;
-  text-transform: uppercase;
-  font-weight: 700;
-  overflow: hidden;
-  box-shadow: -0.3em 0 0 0 #373737, -0.3em 0.3em 0 0 #373737,
-    0.3em 0 0 0 #373737, 0.3em 0.3em 0 0 #373737, 0 0.3em 0 0 #373737;
-}
-
-.toggle > .left {
-  position: absolute;
-  display: flex;
-  width: 50%;
-  height: 88%;
-  background-color: #f3f3f3;
-  color: #373737;
+  top: 0;
   left: 0;
+  right: 0;
+  bottom: 0px;
+  background: #fff;
+  transition: .4s;
+  border-radius: 30px;
+  border: 1px solid #ccc;
+ }
+ 
+ .slider:before {
+  position: absolute;
+  content: "";
+  height: 1.9em;
+  width: 1.9em;
+  border-radius: 16px;
+  left: 1.2px;
+  top: 0;
   bottom: 0;
-  align-items: center;
-  justify-content: center;
-  transform-origin: right;
-  transform: rotateX(10deg);
-  transform-style: preserve-3d;
-  transition: all 150ms;
-}
-
-.left::before {
-  position: absolute;
-  content: "";
-  width: 100%;
-  height: 100%;
-  background-color: rgb(206, 206, 206);
-  transform-origin: center left;
-  transform: rotateY(90deg);
-}
-
-.left::after {
-  position: absolute;
-  content: "";
-  width: 100%;
-  height: 100%;
-  background-color: rgb(112, 112, 112);
-  transform-origin: center bottom;
-  transform: rotateX(90deg);
-}
-
-.toggle > .right {
-  position: absolute;
-  display: flex;
-  width: 50%;
-  height: 88%;
-  background-color: #f3f3f3;
-  color: rgb(206, 206, 206);
-  right: 1px;
-  bottom: 0;
-  align-items: center;
-  justify-content: center;
-  transform-origin: left;
-  transform: rotateX(10deg) rotateY(-45deg);
-  transform-style: preserve-3d;
-  transition: all 150ms;
-}
-
-.right::before {
-  position: absolute;
-  content: "";
-  width: 100%;
-  height: 100%;
-  background-color: rgb(206, 206, 206);
-  transform-origin: center right;
-  transform: rotateY(-90deg);
-}
-
-.right::after {
-  position: absolute;
-  content: "";
-  width: 100%;
-  height: 100%;
-  background-color: rgb(112, 112, 112);
-  transform-origin: center bottom;
-  transform: rotateX(90deg);
-}
-
-.switch input:checked + .toggle > .left {
-  transform: rotateX(10deg) rotateY(45deg);
-  color: rgb(206, 206, 206);
-}
-
-.switch input:checked + .toggle > .right {
-  transform: rotateX(10deg) rotateY(0deg);
-  color: #487bdb;
-}
+  background-color: white;
+  box-shadow: 0 2px 5px #999999;
+  transition: .4s;
+ }
+ 
+ input:checked + .slider {
+  background-color: #5fdd54;
+  border: 1px solid transparent;
+ }
+ 
+ input:checked + .slider:before {
+  transform: translateX(1.5em);
+ }
 
 /* Sign in Styling */
 .card__holder{
   background-color: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   position: fixed;
   top: 0;       /* Fill the entire screen */
   bottom: 0;
@@ -355,7 +295,7 @@ body {
 
 .card {
   width: 240px;
-  height: 320px;
+  height: 300px;
   padding: 0 15px;
   text-align: center;
   display: flex;
@@ -369,7 +309,7 @@ body {
   position: fixed;
   top: 50%;
   left: 50%;
-  translate: -135px -127px;
+  translate: -135px -200px;
 }
 
 .card > * {
@@ -391,6 +331,7 @@ body {
 .card__form {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 10px;
 }
 
@@ -429,7 +370,7 @@ body {
   left: 0;
   right: 0;
   z-index: -1;
-  transition: all 0.5s ease-in;
+  transition: all 0.3s ease-in;
   opacity: 0;
   
   display: flex;
@@ -444,6 +385,8 @@ body {
 
 .modal-inner {  /* Just the window inside, dashboard itself */
   background-color: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border-radius: 10px;
   box-shadow: 0 1px 4px rgba(0, 0 , 0, 0.5);
   text-align: center;
@@ -664,11 +607,11 @@ body {
 
 /* Chart JS CSS */
 #chart_div {
-  position: fixed;
-  right: 14%;
-  bottom: 15%;
-  width: 35%;
-  height: 35%;
+  position: absolute;
+  right: 8%;
+  bottom: 10%;
+  width: 40%;
+  height: 40%;
   background-color: rgba(29, 29, 29, 0.5);
   border-radius: 4px;
 }
